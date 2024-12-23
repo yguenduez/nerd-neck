@@ -1,4 +1,4 @@
-# Nerd Neck but on ESP32-S3
+# Nerd Neck on ESP32-S3
 
 We have several IMU Sensors
 - [BMI160](https://www.dfrobot.com/product-1716.html)
