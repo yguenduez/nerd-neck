@@ -105,3 +105,7 @@ replace-with = "vendored-sources"
 [source.vendored-sources]
 directory = "vendor"
 ```
+
+## Pinouts of esp32s3 from Seeed
+
+![Pinouts](images/pinouts-esp32.jpg)
