@@ -2,28 +2,18 @@
 #![no_main]
 
 use bmi160::{AccelerometerPowerMode, Bmi160, GyroscopePowerMode, SensorSelector, SlaveAddr};
-use esp_backtrace as _;
-use esp_hal::{delay::Delay, prelude::*};
-use esp_hal::gpio::Io;
-use esp_hal::i2c::I2c;
+use esp_hal::i2c::master::{Config, I2c};
+use esp_hal::prelude::*;
 use esp_println::println;
 
 #[entry]
 fn main() -> ! {
     let peripherals = esp_hal::init(esp_hal::Config::default());
-    let delay = Delay::new();
 
     // Getting the i2c up
-    let io = Io::new(peripherals.GPIO, peripherals.IO_MUX);
-    let sda =  io.pins.gpio5;
-    let scl = io.pins.gpio6;
-
-    let i2c = I2c::new(
-        peripherals.I2C0,
-        sda,
-        scl,
-        100u32.kHz(),
-    );
+    let i2c = I2c::new(peripherals.I2C0, Config::default())
+        .with_scl(peripherals.GPIO6)
+        .with_sda(peripherals.GPIO5);
 
     //Setting up the IMU
     let address = SlaveAddr::Alternative(true); //0x69
