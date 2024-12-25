@@ -43,5 +43,6 @@ async fn main(_spawner: Spawner) -> ! {
              Gyroscope: x {:5} y {:5} z {:5}",
             accel.x, accel.y, accel.z, gyro.x, gyro.y, gyro.z
         );
+        Timer::after(Duration::from_millis(200)).await;
     }
 }
