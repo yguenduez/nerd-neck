@@ -26,7 +26,7 @@ async fn main(_spawner: Spawner) -> ! {
     // Getting the i2c up
     let i2c = I2c::new(peripherals.I2C0, Config::default())
         .with_scl(peripherals.GPIO6)
-        .with_sda(peripherals.GPIO5);
+        .with_sda(peripherals.GPIO5).into_async();
 
     //Setting up the IMU
     let address = SlaveAddr::Alternative(true); //0x69
