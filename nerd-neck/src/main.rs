@@ -2,6 +2,7 @@
 #![no_main]
 
 use bmi160::{AccelerometerPowerMode, Bmi160, GyroscopePowerMode, SensorSelector, SlaveAddr};
+use esp_backtrace as _;
 use esp_hal::i2c::master::{Config, I2c};
 use esp_hal::prelude::*;
 use esp_println::println;
