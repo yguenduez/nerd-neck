@@ -10,6 +10,24 @@ with a moving median filter, or RANSAC filter, to filter out outliers.
 If the angle of the IMU passes a certain threshold and stays there for a certain amount of y seconds,
 the device will start beeping, notifying the person to rectify its position.
 
+## Problems:
+
+Gyroscope does drift, when integrated over time, so we need to correct those values with sensor fusion algorithms,
+with other sensor values. Both IMUs we can use, also come with an accelerometer.
+So we combine smooth short-them gyroscope data with long-term stability of accelerometer data.
+
+Possible Filters:
+
+- **Complementary filter** (simpler but effective for many use cases).
+- **Madgwick filter** (a fast, quaternion-based algorithm for IMUs).
+- **Mahony filter** (similar to Madgwick with some differences in accuracy and computation).
+- **Kalman filter** (complex but precise, especially for combining multiple sensors).
+
+**Note**: As we are only interested in the tilt of the IMU (diff angle to the vertical z-axis), we can neglect
+the yaw angle (which would be corrected be the magnetometer, which we do not have).
+
+So we can use either Madgwick or Mahony with only given accelerometer and gyro values.
+
 ## IMU Sensors
 
 We have several IMU Sensors
