@@ -69,7 +69,12 @@ We use 4.7k Ohms as pull-up resistors.
 
 ## Current Wiring
 
-TODO
+We have an i2c setup, where two 4.7k Ohm resistors are used as 
+pull up resistors. If scl/sda are off, both signals are pulled up
+up to the logical 3.3 volts (high). The IMU (on the right)
+will pull the signal down if needed.
+
+![fritzing](images/nerd-neck-fritzing.png)
 
 ## Building and flashing
 
