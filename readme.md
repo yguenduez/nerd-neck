@@ -51,8 +51,6 @@ This bus comes with a dataline (sda) and a line for the clock signal (scl).
 You can connect several devices to the bus, like shown below.
 ![image](images/i2c_master_module.png)
 
-Below is a code snippet to connect the esp32 with i2c to an external device
-
 Note from [espressif](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp32s3/api-reference/peripherals/i2c.html):
 
 > The frequency of SCL is influenced by both the pull-up resistor and the wire capacitance. Therefore, users are strongly recommended to choose appropriate pull-up resistors to make the frequency accurate. The recommended value for pull-up resistors usually ranges from 1K Ohms to 10K Ohms.
@@ -89,7 +87,7 @@ Install all the depenendencies:
 
 ### Building/Flashing
 
-Then go into the the `nerd-neck` directory and
+Then go into the `nerd-neck` directory and
 `source ~/export-esp.h` (generated from `espup install`).
 
 To build and flash it the firmware to the device,
