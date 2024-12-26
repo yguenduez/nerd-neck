@@ -1,5 +1,5 @@
+#![no_std]
 mod filter;
-
-pub fn add(left: u64, right: u64) -> u64 {
-    left + right
-}
+mod mahony_ahrs_6_dof;
+pub mod madgwick_adapter;
+pub mod angle;

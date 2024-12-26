@@ -10,7 +10,7 @@ with a moving median filter, or RANSAC filter, to filter out outliers.
 If the angle of the IMU passes a certain threshold and stays there for a certain amount of y seconds,
 the device will start beeping, notifying the person to rectify its position.
 
-## Problems:
+## IMU Drift:
 
 Gyroscope does drift, when integrated over time, so we need to correct those values with sensor fusion algorithms,
 with other sensor values. Both IMUs we can use, also come with an accelerometer.
@@ -27,6 +27,24 @@ Possible Filters:
 the yaw angle (which would be corrected be the magnetometer, which we do not have).
 
 So we can use either Madgwick or Mahony with only given accelerometer and gyro values.
+
+### IMU Filter Implementation
+
+There is already a [third party crate (ahrs-rs)](https://github.com/jmagnuson/ahrs-rs), that already implements both Madgwick and Mahony filters
+for both 6DoF and 9DoF IMUs.
+
+A choice is the filter gains, KI and KP for Mahony and Beta for Madgwick.
+
+Some recommended beta values:
+
+| Drones/RC vehicles | 0.1 - 0.3 | High dynamics, prioritize responsiveness. |
+| --- | --- | --- |
+| Robotics (general) | 0.05 - 0.2 | Moderate dynamics, balance response and drift. |
+| Slow-motion systems | 0.01 - 0.05 | Low dynamics, prioritize stability/noise rejection. |
+| Human motion tracking | 0.01 - 0.1 | Prioritize stability but allow small dynamic motion. |
+| Static applications | 0.001 - 0.01 | Low dynamics, focus on maximum stability. |
+
+TL;DR: We use Madgwick with beta between 0.01 and 0.1.
 
 ## IMU Sensors
 
