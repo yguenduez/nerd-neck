@@ -66,3 +66,27 @@ We use 4.7k Ohms as pull-up resistors.
 ## Pinouts of esp32s3 from Seeed
 
 ![Pinouts](images/pinouts-esp32.jpg)
+
+## Current Wiring
+
+TODO
+
+## Building and flashing
+
+### Prerequisites
+
+Install all the depenendencies:
+
+- Install [Rust](https://www.rust-lang.org/tools/install)
+- Install esp tooling
+  - `cargo install espup espflash`
+  - `espup install`
+
+### Building/Flashing
+
+Then go into the the `nerd-neck` directory and
+`source ~/export-esp.h` (generated from `espup install`).
+
+To build and flash it the firmware to the device,
+just run `cargo run --release`.
+
