@@ -7,7 +7,7 @@ pub struct MadgwickAdapter {
 
 impl MadgwickAdapter {
     pub fn new() -> Self {
-        const SAMPLE_RATE: f32 = 0.1; // every 0.1 seconds
+        const SAMPLE_RATE: f32 = 0.02; // 50Hz
         const BETA: f32 = 0.05;
         MadgwickAdapter {
             madgwick: Madgwick::new(SAMPLE_RATE, BETA),

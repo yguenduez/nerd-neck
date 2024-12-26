@@ -53,6 +53,6 @@ async fn main(_spawner: Spawner) -> ! {
         println!("Roll: {:.2}, Pitch: {:.2}, Yaw: {:.2}", roll, pitch, yaw);
         let angle = quaternion_to_z_axis_angle((*quat).into());
         println!("Angle to z-axis: {:.2}", angle);
-        Timer::after(Duration::from_millis(100)).await;
+        Timer::after(Duration::from_millis(20)).await;
     }
 }
