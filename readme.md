@@ -16,7 +16,8 @@ We also try to make it low-powered.
 ## TODOs
 
 - [x] Calculate an angle to Z-Axis (with Filters), that can be used as "beep" input
-- [ ] Write a small rust driver for the speaker, that controls it
+- [ ] Do a calibration for the Gyro before starting (if not moving, gyro values should be 0).
+- [ ] Write a little rust driver for the speaker, that controls it
 - [ ] On a configurable threshold - enable the beep speaker
 - [ ] Apply a LiPo (3.7 Volts) battery adapter to the battery pins
 - [ ] Design 3d model for the casing to print
