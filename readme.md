@@ -180,3 +180,14 @@ The top casing holds the rest. Both parts are designed that way, that the
 bottom half slips into the top half and snaps in.
 
 The whole casing has the following dimensions: 56x46x15mm (circle on top for the buzzer has hight of 6mm)
+
+### Consequences for IMU
+
+Building the imu like this, the IMU's X-Axis,
+aligns with the global Z-Axis (direction of gravity).
+Being completely "straight" means that the angle
+between the Z-Axis of the IMU and the global Z-Axis
+is PI/2.
+This means our threshold for notifying
+the person is between is a difference from PI/2.
+The bigger difference, the higher the person "bends" it back.
