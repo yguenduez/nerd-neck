@@ -44,7 +44,12 @@ async fn notification() {
     loop {
         let _ = SHARED.wait().await;
         info!("Oh no - we have a bend back!");
+
         // TODO: Here we need to activate our beeper!
+
+        // ignore new incoming signals for a given duration!
+        let duration = Duration::from_secs(4);
+        Timer::after(duration).await;
     }
 }
 
