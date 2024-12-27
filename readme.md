@@ -138,3 +138,39 @@ Then go into the `nerd-neck` directory and
 To build and flash it the firmware to the device,
 just run `cargo run --release`.
 
+## Casing
+
+### Requirements
+
+The casing must include 
+- a LiPo battery (3.7 Volts), e.g. [this one](https://www.bastelgarage.ch/lipo-akku-1500mah-jst-2-0-lithium-ion-polymer?search=lipo) (52x42x5mm), 
+- the BMI160 IMU from DFRobots with dimensions 23x27mm as well as the
+- the esp32s3 from seeed with dimensions ~20x25mm. Also having access to its usb-c port.
+- the piezo buzzer with its dimensions, e.g. [this one](https://www.bastelgarage.ch/piezo-buzzer-summer-aktiv) (12mm)
+
+As the casing will be quite flat, we have on one layer the flat LiPo battery on the bottom
+and on the other layer the IMU, the MCU and the piezo buzzer. The wiring will be in between
+those two.
+
+Also: It should be possible to exchange all parts.
+
+The casing will have the dimension of 56x46x10mm, so we
+have a will thickness of 1mm on each side.
+
+### Draft
+
+The first design looks like this: All parts have been designed
+with freecad.
+
+![assembly](images/assembly.png)
+
+Where the parts are the following:
+- Red: the IMU
+- Grey: Esp32s3
+- Yellow: Piezo speaker
+- Blue: the LiPo battery
+
+The casing itself consists of a bottom and a top casing.
+The bottom casing houses the battery.
+The top casing holds the rest. Both parts are designed that way, that the
+bottom half slips into the top half and snaps in.
