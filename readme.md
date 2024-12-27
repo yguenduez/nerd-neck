@@ -20,12 +20,11 @@ We also try to make it low-powered.
 - [ ] Write a little rust driver for the speaker, that controls it
 - [ ] On a configurable threshold - enable the beep speaker
 - [ ] Apply a LiPo (3.7 Volts) battery adapter to the battery pins
-- [ ] Design 3d model for the casing to print
+- [x] Design 3d model for the casing to print
 - [ ] Print the casing
 - [ ] Assemble the parts
 - [ ] Ongoing: Document everything nicely (can be done here)
 - [ ] Test different parameters (Hz ratio, Beta value etc.), and document outcome
-
 
 ## IMU Drift
 
@@ -95,8 +94,10 @@ Note from [espressif](https://docs.espressif.com/projects/esp-idf/en/v5.3.2/esp3
 > strongly recommended to choose appropriate pull-up resistors to make the frequency accurate. The recommended value for
 > pull-up resistors usually ranges from 1K Ohms to 10K Ohms.
 > Keep in mind that the higher the frequency, the smaller the pull-up resistor should be (but not less than 1 KOhms).
-> Indeed, large resistors will decline the current, which will increase the clock switching time and reduce the frequency.
-> We usually recommend a range of 2 KOhms to 5 KOhms, but users may also need to make some adjustments depending on their
+> Indeed, large resistors will decline the current, which will increase the clock switching time and reduce the
+> frequency.
+> We usually recommend a range of 2 KOhms to 5 KOhms, but users may also need to make some adjustments depending on
+> their
 > current draw requirements.
 
 **TL;DR**: Use 2-10kOhm resistors as pull up resistors.
@@ -142,8 +143,10 @@ just run `cargo run --release`.
 
 ### Requirements
 
-The casing must include 
-- a LiPo battery (3.7 Volts), e.g. [this one](https://www.bastelgarage.ch/lipo-akku-1500mah-jst-2-0-lithium-ion-polymer?search=lipo) (52x42x5mm), 
+The casing must include
+
+- a LiPo battery (3.7 Volts),
+  e.g. [this one](https://www.bastelgarage.ch/lipo-akku-1500mah-jst-2-0-lithium-ion-polymer?search=lipo) (52x42x5mm),
 - the BMI160 IMU from DFRobots with dimensions 23x27mm as well as the
 - the esp32s3 from seeed with dimensions ~20x25mm. Also having access to its usb-c port.
 - the piezo buzzer with its dimensions, e.g. [this one](https://www.bastelgarage.ch/piezo-buzzer-summer-aktiv) (12mm)
@@ -165,6 +168,7 @@ with freecad.
 ![assembly](images/assembly.png)
 
 Where the parts are the following:
+
 - Red: the IMU
 - Grey: Esp32s3
 - Yellow: Piezo speaker
@@ -174,3 +178,5 @@ The casing itself consists of a bottom and a top casing.
 The bottom casing houses the battery.
 The top casing holds the rest. Both parts are designed that way, that the
 bottom half slips into the top half and snaps in.
+
+The whole casing has the following dimensions: 56x46x15mm (circle on top for the buzzer has hight of 6mm)
