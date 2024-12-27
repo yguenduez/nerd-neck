@@ -1,13 +1,13 @@
 #![no_std]
 #![no_main]
 
-use bmi160::{AccelerometerPowerMode, Bmi160, GyroscopePowerMode, SensorSelector, SlaveAddr};
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
 use esp_hal::i2c::master::{Config, I2c};
 use esp_hal::prelude::*;
 use esp_println::println;
+use test_esp32s3_embassy::ImuAdapter;
 use utility::angle::quaternion_to_z_axis_angle;
 use utility::madgwick_adapter::MadgwickAdapter;
 
@@ -32,27 +32,21 @@ async fn main(_spawner: Spawner) -> ! {
         .into_async();
 
     //Setting up the IMU
-    let address = SlaveAddr::Alternative(true); //0x69
-    let mut imu = Bmi160::new_with_i2c(i2c, address);
-    imu.set_accel_power_mode(AccelerometerPowerMode::Normal)
-        .unwrap();
-    imu.set_gyro_power_mode(GyroscopePowerMode::Normal).unwrap();
-
+    let mut imu = ImuAdapter::new_bmi160(i2c);
     let mut madgwick = MadgwickAdapter::new();
     // TODO: First we need to calibrate the gyro - starting the device on a desk
     // and not moving
     // then we loop in a defined rate
     loop {
-        let data = imu
-            .data_scaled(SensorSelector::new().accel().gyro())
-            .unwrap();
-        let accel = data.accel.unwrap();
-        let gyro = data.gyro.unwrap();
-        let quat = madgwick.update([gyro.x, gyro.y, gyro.z], [accel.x, accel.y, accel.z]);
-        let (roll, pitch, yaw) = quat.euler_angles();
+        let (gyro, accel) = imu.get_data();
+        let quaternion = madgwick.update(gyro, accel);
+
+        let (roll, pitch, yaw) = quaternion.euler_angles();
         println!("Roll: {:.2}, Pitch: {:.2}, Yaw: {:.2}", roll, pitch, yaw);
-        let angle = quaternion_to_z_axis_angle((*quat).into());
+
+        let angle = quaternion_to_z_axis_angle((*quaternion).into());
         println!("Angle to z-axis: {:.2}", angle);
+
         Timer::after(Duration::from_millis(20)).await;
     }
 }
