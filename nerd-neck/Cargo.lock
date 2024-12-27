@@ -1064,6 +1064,7 @@ dependencies = [
  "bmi160",
  "critical-section",
  "embassy-executor",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "esp-backtrace",
  "esp-hal",

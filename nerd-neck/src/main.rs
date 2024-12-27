@@ -8,8 +8,14 @@ use esp_hal::i2c::master::{Config, I2c};
 use esp_hal::prelude::*;
 use log::info;
 use test_esp32s3_embassy::ImuAdapter;
-use utility::angle::quaternion_to_z_axis_angle;
+use utility::angle::{back_is_bend, quaternion_to_z_axis_angle};
 use utility::madgwick_adapter::MadgwickAdapter;
+
+use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
+use embassy_sync::signal::Signal;
+static SHARED: Signal<CriticalSectionRawMutex, NotifyPerson> = Signal::new();
+
+struct NotifyPerson;
 
 const POLL_INTERVAL: Duration = Duration::from_millis(20);
 
@@ -25,7 +31,20 @@ async fn imu_poll(mut imu: ImuAdapter<'static>, mut madgwick: MadgwickAdapter) {
         let angle = quaternion_to_z_axis_angle((*quaternion).into());
         info!("Angle to z-axis: {:.2}", angle);
 
+        // notify the other task if we surpass a certain threshold
+        if back_is_bend(angle) {
+            SHARED.signal(NotifyPerson);
+        }
         Timer::after(POLL_INTERVAL).await;
+    }
+}
+
+#[task]
+async fn notification() {
+    loop {
+        let _ = SHARED.wait().await;
+        info!("Oh no - we have a bend back!");
+        // TODO: Here we need to activate our beeper!
     }
 }
 
@@ -54,4 +73,5 @@ async fn main(spawner: Spawner) {
     let madgwick = MadgwickAdapter::new(POLL_INTERVAL.as_millis());
 
     spawner.spawn(imu_poll(imu, madgwick)).unwrap();
+    spawner.spawn(notification()).unwrap();
 }

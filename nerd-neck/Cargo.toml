@@ -26,6 +26,7 @@ critical-section = "1.2.0"
 bmi160 = "1.1.0"
 
 utility = { path = "../utility" }
+embassy-sync = "0.6.1"
 
 [profile.dev]
 # Rust debug is too slow.
