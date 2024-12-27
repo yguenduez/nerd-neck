@@ -11,6 +11,8 @@ use test_esp32s3_embassy::ImuAdapter;
 use utility::angle::quaternion_to_z_axis_angle;
 use utility::madgwick_adapter::MadgwickAdapter;
 
+const POLL_INTERVAL: Duration = Duration::from_millis(20);
+
 #[task]
 async fn imu_poll(mut imu: ImuAdapter<'static>, mut madgwick: MadgwickAdapter) {
     loop {
@@ -23,7 +25,7 @@ async fn imu_poll(mut imu: ImuAdapter<'static>, mut madgwick: MadgwickAdapter) {
         let angle = quaternion_to_z_axis_angle((*quaternion).into());
         info!("Angle to z-axis: {:.2}", angle);
 
-        Timer::after(Duration::from_millis(20)).await;
+        Timer::after(POLL_INTERVAL).await;
     }
 }
 
@@ -49,7 +51,7 @@ async fn main(spawner: Spawner) {
 
     //Setting up the IMU
     let imu = ImuAdapter::new_bmi160(i2c);
-    let madgwick = MadgwickAdapter::new();
+    let madgwick = MadgwickAdapter::new(POLL_INTERVAL.as_millis());
 
     spawner.spawn(imu_poll(imu, madgwick)).unwrap();
 }
