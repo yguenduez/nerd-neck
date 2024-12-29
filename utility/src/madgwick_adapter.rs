@@ -8,7 +8,7 @@ pub struct MadgwickAdapter {
 impl MadgwickAdapter {
     pub fn new(poll_intervall_millis: u64) -> Self {
         let sample_rate: f32 = (poll_intervall_millis as f64 / 1000.0) as f32;
-        const BETA: f32 = 0.05;
+        const BETA: f32 = 0.1;
         MadgwickAdapter {
             madgwick: Madgwick::new(sample_rate, BETA),
         }

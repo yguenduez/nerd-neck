@@ -62,7 +62,7 @@ between responsiveness and stability:
 | Human motion tracking | 0.01 - 0.1   | Prioritize stability but allow small dynamic motion. |
 | Static applications   | 0.001 - 0.01 | Low dynamics, focus on maximum stability.            |
 
-TL;DR: We use the Madgwick filter with beta between 0.01 and 0.1. Currently, we use 0.05.
+TL;DR: We use the Madgwick filter with beta between 0.01 and 0.1. Currently, we use 0.1.
 
 ## IMU Sensors
 
