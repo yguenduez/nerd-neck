@@ -160,7 +160,7 @@ Also: It should be possible to exchange all parts.
 The casing will have the dimension of 56x46x10mm, so we
 have a will thickness of 1mm on each side.
 
-### Draft
+### Version 0.1 
 
 The first design looks like this: All parts have been designed
 with freecad.
@@ -180,6 +180,17 @@ The top casing holds the rest. Both parts are designed that way, that the
 bottom half slips into the top half and snaps in.
 
 The whole casing has the following dimensions: 56x46x15mm (circle on top for the buzzer has hight of 6mm)
+
+### Version 0.2
+
+Changes to V0.1:
+- To make the design more 3D-print friendly, there is no exterior for the buzzer any more.
+  The Downside is,
+the buzzer is exposed a bit.
+- The hole for the usb got bigger, as it did not go through without drilling.
+- The two holders, that hold the bottom part, got 1mm longer, as the bottom part did not fit in.
+
+![assmbly](images/assembly_v0.2.png)
 
 ### Consequences for IMU
 
