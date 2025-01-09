@@ -21,7 +21,7 @@ We also try to make it low-powered.
 - [x] On a configurable threshold - enable the trigger for the beep speaker
 - [ ] Apply a LiPo (3.7 Volts) battery adapter to the battery pins
 - [x] Design 3d model for the casing to print
-- [ ] Print the casing
+- [x] Print the casing
 - [ ] Assemble the parts
 - [ ] Ongoing: Document everything nicely (can be done here)
 - [ ] Test different parameters (Hz ratio, Beta value etc.), and document outcome
