@@ -2,10 +2,11 @@
 #![no_main]
 
 use embassy_executor::{task, Spawner};
-use embassy_time::{Duration, Timer};
+use embassy_time::{Duration, Instant, Timer};
 use esp_backtrace as _;
+use esp_hal::gpio::{GpioPin, Level, Output};
 use esp_hal::i2c::master::{Config, I2c};
-use esp_hal::prelude::*;
+use esp_hal::{peripherals, prelude::*};
 use log::info;
 use test_esp32s3_embassy::ImuAdapter;
 use utility::angle::{back_is_bend, quaternion_to_z_axis_angle};
@@ -33,23 +34,32 @@ async fn imu_poll(mut imu: ImuAdapter<'static>, mut madgwick: MadgwickAdapter) {
 
         // notify the other task if we surpass a certain threshold
         if back_is_bend(angle) {
-            SHARED.signal(NotifyPerson);
+              SHARED.signal(NotifyPerson);
         }
         Timer::after(POLL_INTERVAL).await;
     }
 }
 
 #[task]
-async fn notification() {
+async fn notification(mut pin: Output<'static>) {
     loop {
         let _ = SHARED.wait().await;
-        info!("Oh no - we have a bend back!");
+        let now = Instant::now();
+        loop {
+            // TODO: Here we need to activate our beeper!
+            pin.set_high();
+            let duration = Duration::from_micros(500);
+            Timer::after(duration).await;
+            pin.set_low();
 
-        // TODO: Here we need to activate our beeper!
-
-        // ignore new incoming signals for a given duration!
-        let duration = Duration::from_secs(4);
-        Timer::after(duration).await;
+            // ignore new incoming signals for a given duration!
+            let duration = Duration::from_micros(500);
+            Timer::after(duration).await;
+            let current_timestamp = Instant::now();
+            let beeper_end = current_timestamp - now > Duration::from_secs(2);
+            if beeper_end {break}
+        }
+        SHARED.reset();
     }
 }
 
@@ -77,6 +87,9 @@ async fn main(spawner: Spawner) {
     let imu = ImuAdapter::new_bmi160(i2c);
     let madgwick = MadgwickAdapter::new(POLL_INTERVAL.as_millis());
 
+    let gpio = peripherals.GPIO7;
+    let beeperPin = Output::new(gpio, Level::Low);
+
     spawner.spawn(imu_poll(imu, madgwick)).unwrap();
-    spawner.spawn(notification()).unwrap();
+    spawner.spawn(notification(beeperPin)).unwrap();
 }
