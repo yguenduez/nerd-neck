@@ -4,9 +4,9 @@
 use embassy_executor::{task, Spawner};
 use embassy_time::{Duration, Instant, Timer};
 use esp_backtrace as _;
-use esp_hal::gpio::{GpioPin, Level, Output};
+use esp_hal::gpio::{Level, Output};
 use esp_hal::i2c::master::{Config, I2c};
-use esp_hal::{peripherals, prelude::*};
+use esp_hal::prelude::*;
 use log::info;
 use test_esp32s3_embassy::ImuAdapter;
 use utility::angle::{back_is_bend, quaternion_to_z_axis_angle};
@@ -47,15 +47,16 @@ async fn notification(mut pin: Output<'static>) {
         let _ = SHARED.wait().await;
         let now = Instant::now();
         loop {
-            // TODO: Here we need to activate our beeper!
             pin.set_high();
+
             let duration = Duration::from_micros(500);
             Timer::after(duration).await;
+
             pin.set_low();
 
-            // ignore new incoming signals for a given duration!
             let duration = Duration::from_micros(500);
             Timer::after(duration).await;
+
             let current_timestamp = Instant::now();
             let beeper_end = current_timestamp - now > Duration::from_secs(2);
             if beeper_end {
@@ -91,8 +92,8 @@ async fn main(spawner: Spawner) {
     let madgwick = MadgwickAdapter::new(POLL_INTERVAL.as_millis());
 
     let gpio = peripherals.GPIO7;
-    let beeperPin = Output::new(gpio, Level::Low);
+    let beeper_pin = Output::new(gpio, Level::Low);
 
     spawner.spawn(imu_poll(imu, madgwick)).unwrap();
-    spawner.spawn(notification(beeperPin)).unwrap();
+    spawner.spawn(notification(beeper_pin)).unwrap();
 }
