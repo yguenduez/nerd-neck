@@ -24,17 +24,18 @@ const POLL_INTERVAL: Duration = Duration::from_millis(20);
 async fn imu_poll(mut imu: ImuAdapter<'static>, mut madgwick: MadgwickAdapter) {
     loop {
         let (gyro, accel) = imu.get_data();
-        let quaternion = madgwick.update(gyro, accel);
+        let update_result = madgwick.update(gyro, accel);
+        if let Ok(quaternion) = update_result {
+            let (roll, pitch, yaw) = quaternion.euler_angles();
+            info!("Roll: {:.2}, Pitch: {:.2}, Yaw: {:.2}", roll, pitch, yaw);
 
-        let (roll, pitch, yaw) = quaternion.euler_angles();
-        info!("Roll: {:.2}, Pitch: {:.2}, Yaw: {:.2}", roll, pitch, yaw);
+            let angle = quaternion_to_z_axis_angle((*quaternion).into());
+            info!("Angle to z-axis: {:.2}", angle);
 
-        let angle = quaternion_to_z_axis_angle((*quaternion).into());
-        info!("Angle to z-axis: {:.2}", angle);
-
-        // notify the other task if we surpass a certain threshold
-        if back_is_bend(angle) {
-              SHARED.signal(NotifyPerson);
+            // notify the other task if we surpass a certain threshold
+            if back_is_bend(angle) {
+                SHARED.signal(NotifyPerson);
+            }
         }
         Timer::after(POLL_INTERVAL).await;
     }
@@ -57,7 +58,9 @@ async fn notification(mut pin: Output<'static>) {
             Timer::after(duration).await;
             let current_timestamp = Instant::now();
             let beeper_end = current_timestamp - now > Duration::from_secs(2);
-            if beeper_end {break}
+            if beeper_end {
+                break;
+            }
         }
         SHARED.reset();
     }
