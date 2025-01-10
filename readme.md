@@ -17,14 +17,15 @@ We also try to make it low-powered.
 
 - [x] Calculate an angle to Z-Axis (with Filters), that can be used as "beep" input
 - [x] ~~Do a calibration for the Gyro before starting (if not moving, gyro values should be 0).~~ (Filter already corrects offsets)
-- [ ] Write a little rust driver for the speaker, that controls it
+- [x] Write a little rust driver for the speaker, that controls it
 - [x] On a configurable threshold - enable the trigger for the beep speaker
 - [ ] Apply a LiPo (3.7 Volts) battery adapter to the battery pins
 - [x] Design 3d model for the casing to print
 - [x] Print the casing
 - [ ] Assemble the parts
-- [ ] Ongoing: Document everything nicely (can be done here)
 - [ ] Test different parameters (Hz ratio, Beta value etc.), and document outcome
+- [ ] Write Report with Markdown
+- [ ] Slides with UniBas flavour
 
 ## IMU Drift
 
@@ -63,6 +64,11 @@ between responsiveness and stability:
 | Static applications   | 0.001 - 0.01 | Low dynamics, focus on maximum stability.            |
 
 TL;DR: We use the Madgwick filter with beta between 0.01 and 0.1. Currently, we use 0.1.
+The paper for madgwick is [here](https://x-io.co.uk/downloads/madgwick_internal_report.pdf).
+
+The Madgwick Feedback loop (from paper above):
+
+![img.png](images/feedback_loop.png)
 
 ## IMU Sensors
 
