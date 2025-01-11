@@ -175,9 +175,9 @@ Then go into the `nerd-neck` directory and
 To build and flash it the firmware to the device,
 just run `cargo run --release`.
 
-## Casing
+# Casing
 
-### Requirements
+## Requirements
 
 The casing must include
 
@@ -196,10 +196,14 @@ Also: It should be possible to exchange all parts.
 The casing will have the dimension of 56x46x10mm, so we
 have a will thickness of 1mm on each side.
 
+## Designs with Freecad
+
+All below versions were designed with [FreeCad](https://www.freecad.org/), an open-source
+CAD Software running on all major platforms (Mac, Linux and Windows).
+
 ### Version 0.1 
 
-The first design looks like this: All parts have been designed
-with freecad.
+The first design looks like this: 
 
 ![assembly](images/assembly.png)
 
@@ -227,3 +231,13 @@ the buzzer is exposed a bit.
 - The two holders, that hold the bottom part, got 1mm longer, as the bottom part did not fit in.
 
 ![assmbly](images/assembly_v0.2.png)
+
+### Version 0.3
+
+Changes to V0.2:
+- We thickened the holders by increasing their thickness from 1 mm to 2 mm.
+- We resized the whole for the usb-c port.
+- Decrease the height of the piezo buzzer holder, as the battery would not fit
+- Decrease diameter of piezo buzzer hole from 13 mm to 12.3 mm
+
+![img.png](images/top_v0.3.png)
