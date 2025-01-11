@@ -2,16 +2,17 @@
 
 This small device will detect bad posture, if the person wearing this device has it attached to the back.
 
-## Idea
+## Outline 
 
 We read IMU data in a cycle. Every x milliseconds we receive IMU data.
-As the IMU values drift, we need a filter(s), that correct the drift integrated over time.
+As the IMU values drift, we need a filter(s): Those correct the drift integrated over time with sensor fusion
+algorithms.
 
-If the angle of the IMU passes a certain threshold and stays there for a certain amount of y seconds,
-the device will start beeping, notifying the person to rectify its position.
+If the orientation of the device passes a certain threshold,
+the device will start beeping for y, notifying the person to rectify its position.
+It will remain beeping, until the person corrected its position.
 
 The whole device is a wearable, so it needs a battery (LiPo) and a 3d printed casing.
-We also try to make it low-powered.
 
 ## TODOs
 
@@ -122,9 +123,38 @@ pull up resistors. If scl/sda are off, both signals are pulled up
 up to the logical 3.3 Volts (high). The IMU (on the right)
 will pull the signal down if needed.
 
-Everything runs on the 3.3 Volts level of the MCU.
+Everything runs on the 3.3-volt level of the MCU.
+
+The piezo speaker is directly connected to GPIO pin 7. It drains 15mA and is running 
+with powered with a 1khz pwm signal, when triggered.
+
+Below fritzing image is demonstrating the wiring. The parts are aliases though, we use different ones
+but the wiring is exactly the same.
 
 ![fritzing](images/nerd-neck-fritzing.png)
+
+## Bill of Materials
+
+Below all used Materials
+
+### For the Breadboard Version
+
+- MCU: Seeed xiao esp32s3, [link](https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/)
+- IMU: DF Robot BMI160 (6 DoF-IMU), [link](https://www.dfrobot.com/product-1716.html)
+- 2x 4.7k Ohm Resistors as pull up resistors for the I2C connection
+- Breadboard
+- Active Piezo Buzzer, [link](https://www.bastelgarage.ch/piezo-buzzer-summer-aktiv?search=Piezo%20Buzzer%20Summer%20aktiv) 
+- Wires
+
+### The Assembled (Battery powered Version)
+
+- MCU: Seeed xiao esp32s3, [link](https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/)
+- IMU: DF Robot BMI160 (6 DoF-IMU), [link](https://www.dfrobot.com/product-1716.html)
+- 2x 4.7k Ohm Resistors as pull up resistors for the I2C connection
+- Active Piezo Buzzer, [link](https://www.bastelgarage.ch/piezo-buzzer-summer-aktiv?search=Piezo%20Buzzer%20Summer%20aktiv)
+- Wires
+- Battery: LiPo, 3.7 volts with 1500mAh: [link](https://www.bastelgarage.ch/lipo-akku-1500mah-jst-2-0-lithium-ion-polymer?search=LiPo%20Akku%201500mAh%20JST%202.0%20%2F%20Lithium%20Ion%20Polymer)
+- JST-PH crimp plugs and sockets (To not directly solder the battery to the MCU), [link](https://www.bastelgarage.ch/jst-ph-crimp-stecker-und-buchsen-2mm-set-40-stuck)
 
 ## Building and flashing
 
@@ -191,20 +221,9 @@ The whole casing has the following dimensions: 56x46x15mm (circle on top for the
 
 Changes to V0.1:
 - To make the design more 3D-print friendly, there is no exterior for the buzzer any more.
-  The Downside is,
+  The downside is,
 the buzzer is exposed a bit.
 - The hole for the usb got bigger, as it did not go through without drilling.
 - The two holders, that hold the bottom part, got 1mm longer, as the bottom part did not fit in.
 
 ![assmbly](images/assembly_v0.2.png)
-
-### Consequences for IMU
-
-Building the imu like this, the IMU's X-Axis,
-aligns with the global Z-Axis (direction of gravity).
-Being completely "straight" means that the angle
-between the Z-Axis of the IMU and the global Z-Axis
-is PI/2.
-This means our threshold for notifying
-the person is between is a difference from PI/2.
-The bigger difference, the higher the person "bends" it back.
