@@ -236,7 +236,7 @@ the buzzer is exposed a bit.
 
 Changes to V0.2:
 - We thickened the holders by increasing their thickness from 1 mm to 2 mm.
-- We resized the whole for the usb-c port.
+- We resized the hole for the usb-c port.
 - Decrease the height of the piezo buzzer holder, as the battery would not fit
 - Decrease diameter of piezo buzzer hole from 13 mm to 12.3 mm
 
