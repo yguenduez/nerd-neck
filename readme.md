@@ -241,3 +241,14 @@ Changes to V0.2:
 - Decrease diameter of piezo buzzer hole from 13 mm to 12.3 mm
 
 ![img.png](images/top_v0.3.png)
+
+### Version 0.4
+
+Changes to V0.3:
+
+Instead of having a top and a bottom, the bottom part can now slide into the top part.
+As such, we do not need any clips, to hold the bottom port. Only with gravity
+the casing holds. The bottom part must be attached to a t-shirt in the end, as this will
+hold the complete construction.
+
+![img.png](images/top_v0.4.png)
