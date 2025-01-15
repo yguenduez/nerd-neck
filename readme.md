@@ -2,7 +2,7 @@
 
 This small device will detect bad posture, if the person wearing this device has it attached to the back.
 
-## Outline 
+## Outline
 
 We read IMU data in a cycle. Every x milliseconds we receive IMU data.
 As the IMU values drift, we need a filter(s): Those correct the drift integrated over time with sensor fusion
@@ -17,7 +17,8 @@ The whole device is a wearable, so it needs a battery (LiPo) and a 3d printed ca
 ## TODOs
 
 - [x] Calculate an angle to Z-Axis (with Filters), that can be used as "beep" input
-- [x] ~~Do a calibration for the Gyro before starting (if not moving, gyro values should be 0).~~ (Filter already corrects offsets)
+- [x] ~~Do a calibration for the Gyro before starting (if not moving, gyro values should be 0).~~ (Filter already
+  corrects offsets)
 - [x] Write a little rust driver for the speaker, that controls it
 - [x] On a configurable threshold - enable the trigger for the beep speaker
 - [ ] Apply a LiPo (3.7 Volts) battery adapter to the battery pins
@@ -125,7 +126,7 @@ will pull the signal down if needed.
 
 Everything runs on the 3.3-volt level of the MCU.
 
-The piezo speaker is directly connected to GPIO pin 7. It drains 15mA and is running 
+The piezo speaker is directly connected to GPIO pin 7. It drains 15mA and is running
 with powered with a 1khz pwm signal, when triggered.
 
 Below fritzing image is demonstrating the wiring. The parts are aliases though, we use different ones
@@ -143,7 +144,8 @@ Below all used Materials
 - IMU: DF Robot BMI160 (6 DoF-IMU), [link](https://www.dfrobot.com/product-1716.html)
 - 2x 4.7k Ohm Resistors as pull up resistors for the I2C connection
 - Breadboard
-- Active Piezo Buzzer, [link](https://www.bastelgarage.ch/piezo-buzzer-summer-aktiv?search=Piezo%20Buzzer%20Summer%20aktiv) 
+- Active Piezo
+  Buzzer, [link](https://www.bastelgarage.ch/piezo-buzzer-summer-aktiv?search=Piezo%20Buzzer%20Summer%20aktiv)
 - Wires
 
 ### The Assembled (Battery powered Version)
@@ -151,10 +153,13 @@ Below all used Materials
 - MCU: Seeed xiao esp32s3, [link](https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/)
 - IMU: DF Robot BMI160 (6 DoF-IMU), [link](https://www.dfrobot.com/product-1716.html)
 - 2x 4.7k Ohm Resistors as pull up resistors for the I2C connection
-- Active Piezo Buzzer, [link](https://www.bastelgarage.ch/piezo-buzzer-summer-aktiv?search=Piezo%20Buzzer%20Summer%20aktiv)
+- Active Piezo
+  Buzzer, [link](https://www.bastelgarage.ch/piezo-buzzer-summer-aktiv?search=Piezo%20Buzzer%20Summer%20aktiv)
 - Wires
-- Battery: LiPo, 3.7 volts with 1500mAh: [link](https://www.bastelgarage.ch/lipo-akku-1500mah-jst-2-0-lithium-ion-polymer?search=LiPo%20Akku%201500mAh%20JST%202.0%20%2F%20Lithium%20Ion%20Polymer)
-- JST-PH crimp plugs and sockets (To not directly solder the battery to the MCU), [link](https://www.bastelgarage.ch/jst-ph-crimp-stecker-und-buchsen-2mm-set-40-stuck)
+- Battery: LiPo, 3.7 volts with
+  1500mAh: [link](https://www.bastelgarage.ch/lipo-akku-1500mah-jst-2-0-lithium-ion-polymer?search=LiPo%20Akku%201500mAh%20JST%202.0%20%2F%20Lithium%20Ion%20Polymer)
+- JST-PH crimp plugs and sockets (To not directly solder the battery to the
+  MCU), [link](https://www.bastelgarage.ch/jst-ph-crimp-stecker-und-buchsen-2mm-set-40-stuck)
 
 ## Building and flashing
 
@@ -201,9 +206,9 @@ have a will thickness of 1mm on each side.
 All below versions were designed with [FreeCad](https://www.freecad.org/), an open-source
 CAD Software running on all major platforms (Mac, Linux and Windows).
 
-### Version 0.1 
+### Version 0.1
 
-The first design looks like this: 
+The first design looks like this:
 
 ![assembly](images/assembly.png)
 
@@ -224,9 +229,10 @@ The whole casing has the following dimensions: 56x46x15mm (circle on top for the
 ### Version 0.2
 
 Changes to V0.1:
+
 - To make the design more 3D-print friendly, there is no exterior for the buzzer any more.
   The downside is,
-the buzzer is exposed a bit.
+  the buzzer is exposed a bit.
 - The hole for the usb got bigger, as it did not go through without drilling.
 - The two holders, that hold the bottom part, got 1mm longer, as the bottom part did not fit in.
 
@@ -235,6 +241,7 @@ the buzzer is exposed a bit.
 ### Version 0.3
 
 Changes to V0.2:
+
 - We thickened the holders by increasing their thickness from 1 mm to 2 mm.
 - We resized the hole for the usb-c port.
 - Decrease the height of the piezo buzzer holder, as the battery would not fit
@@ -252,3 +259,16 @@ the casing holds. The bottom part must be attached to a t-shirt in the end, as t
 hold the complete construction.
 
 ![img.png](images/top_v0.4.png)
+
+### Press-fit (Version 0.5)
+
+Instead of sliding and clipping, we also tried a pressfit version.
+The basic idea is that both parts, you want to connect do not perfectly fit to one another.
+Instead they have an overlay, so you have to press them into each other.
+
+The shear friction between those parts is enough, so they stick together.
+
+The obvious pros. The parts are much easier to design, as you can see below (and compare them with the previous version)
+
+![img.png](images/pressfit_top.png)
+![img.png](images/pressfit_bottom.png)
