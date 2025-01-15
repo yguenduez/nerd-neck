@@ -21,10 +21,10 @@ The whole device is a wearable, so it needs a battery (LiPo) and a 3d printed ca
   corrects offsets)
 - [x] Write a little rust driver for the speaker, that controls it
 - [x] On a configurable threshold - enable the trigger for the beep speaker
-- [ ] Apply a LiPo (3.7 Volts) battery adapter to the battery pins
+- [x] Apply a LiPo (3.7 Volts) battery adapter to the battery pins
 - [x] Design 3d model for the casing to print
 - [x] Print the casing
-- [ ] Assemble the parts
+- [x] Assemble the parts
 - [ ] Test different parameters (Hz ratio, Beta value etc.), and document outcome
 - [ ] Write Report with Markdown
 - [ ] Slides with UniBas flavour
