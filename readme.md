@@ -272,3 +272,22 @@ The obvious pros. The parts are much easier to design, as you can see below (and
 
 ![img.png](images/pressfit_top.png)
 ![img.png](images/pressfit_bottom.png)
+
+## The press fit is the final version
+
+Printed, it looks like this:
+
+![casing_open](images/case_empty_open.jpeg)
+![casing_open](images/empty_casing_closed.jpeg)
+
+# Assembled Prototype
+
+Below images of the assembled prototype, case opened and case closed
+
+Opened:
+
+![prototype_open](images/prototype_open.jpeg)
+
+Closed:
+
+![prototype_standing](images/prototype_closed_standing.jpeg)
