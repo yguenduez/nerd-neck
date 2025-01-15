@@ -126,10 +126,13 @@ will pull the signal down if needed.
 
 Everything runs on the 3.3-volt level of the MCU.
 
-The piezo speaker is directly connected to GPIO pin 7. It drains 15mA and is running
-with powered with a 1khz pwm signal, when triggered.
+The piezo speaker is connected to GPIO pin 7.
+We use a 100 Ohms resistor to protect ti GPIO. So the piezo speaker
+drains 3.3v/100 Ohms = 33mA of current.
+It's powered with a 1khz pwm signal, when triggered.
 
-Below fritzing image is demonstrating the wiring. The parts are aliases though, we use different ones
+Below the fritzing image is demonstrating the wiring.
+The parts are aliases though, we use different ones, 
 but the wiring is exactly the same.
 
 ![fritzing](images/nerd-neck-fritzing.png)
