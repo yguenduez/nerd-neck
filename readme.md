@@ -120,19 +120,19 @@ We use 4.7k Ohms as pull-up resistors.
 ## Current Wiring
 
 We have an i2c setup, where two 4.7k Ohm resistors are used as
-pull up resistors. If scl/sda are off, both signals are pulled up
-up to the logical 3.3 Volts (high). The IMU (on the right)
+pull up resistors. If scl/sda are off, both signals are pulled up to the logical 3.3 Volts (high). The IMU (on the
+right)
 will pull the signal down if needed.
 
 Everything runs on the 3.3-volt level of the MCU.
 
 The piezo speaker is connected to GPIO pin 7.
-We use a 100 Ohms resistor to protect ti GPIO. So the piezo speaker
-drains 3.3v/100 Ohms = 33mA of current.
-It's powered with a 1khz pwm signal, when triggered.
+We use a 100 Ohms resistor to protect the GPIO from draining too much current.
+So the piezo speaker drains at max 3.3v/100 Ohms = 33 mA of current.
+It's powered with a 1 khz pwm signal, when triggered.
 
 Below the fritzing image is demonstrating the wiring.
-The parts are aliases though, we use different ones, 
+The parts are aliases though, we use different ones,
 but the wiring is exactly the same.
 
 ![fritzing](images/nerd-neck-fritzing.png)
@@ -146,6 +146,7 @@ Below all used Materials
 - MCU: Seeed xiao esp32s3, [link](https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/)
 - IMU: DF Robot BMI160 (6 DoF-IMU), [link](https://www.dfrobot.com/product-1716.html)
 - 2x 4.7k Ohm Resistors as pull up resistors for the I2C connection
+- 1x 100 Ohm Resistor for the piezo speaker
 - Breadboard
 - Active Piezo
   Buzzer, [link](https://www.bastelgarage.ch/piezo-buzzer-summer-aktiv?search=Piezo%20Buzzer%20Summer%20aktiv)
@@ -156,6 +157,7 @@ Below all used Materials
 - MCU: Seeed xiao esp32s3, [link](https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/)
 - IMU: DF Robot BMI160 (6 DoF-IMU), [link](https://www.dfrobot.com/product-1716.html)
 - 2x 4.7k Ohm Resistors as pull up resistors for the I2C connection
+- 1x 100 Ohm Resistor for the piezo speaker
 - Active Piezo
   Buzzer, [link](https://www.bastelgarage.ch/piezo-buzzer-summer-aktiv?search=Piezo%20Buzzer%20Summer%20aktiv)
 - Wires
