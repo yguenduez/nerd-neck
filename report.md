@@ -5,7 +5,7 @@ HS 2024.
 
 ## Students involved
 
-Yasin Gündüz  
+Yasin Gündüz
 
 # Abstract
 
@@ -18,7 +18,8 @@ for portability, and an active piezo buzzer that alerts the user when their post
 IMU
 data and applying a Madgwick filter for accuracy, it detects poor posture efficiently.
 
-The device firmware is programmed in Rust, using tools like esp-hal, a hardware abstraction layer for the esp family. Also,
+The device firmware is programmed in Rust, using tools like esp-hal, a hardware abstraction layer for the esp family.
+Also,
 embassy is used, an async runtime for embedded targets, making it pleasant to run asynchronous tasks. The firmware
 can
 be built and flashed directly from a computer with one simple
@@ -46,11 +47,12 @@ in frequency of 20 hertz. As the imu angular velocities are error-prone in gener
 i.e. the Madgwick filter, to stabilise the orientation we get.
 
 If the orientation surpasses a configurable threshold, we activate an active buzzer, that is powered
- directly with a 1kHz Pulse Modulo Width (PWM) signal.
+directly with a 1kHz Pulse Modulo Width (PWM) signal.
 
 # Software
 
-The firmware for the esp32s3 is written with Rust. [Espressif](https://www.espressif.com/), the creators of the esp32 family created a lot of tooling
+The firmware for the esp32s3 is written with Rust. [Espressif](https://www.espressif.com/), the creators of the esp32
+family created a lot of tooling
 around Rust
 for their chips. With one line of a command, we can build and flash our firmware directly onto the esp32 from any host
 system (in this case MacOS and Windows 11) via usb-c.
@@ -58,7 +60,7 @@ system (in this case MacOS and Windows 11) via usb-c.
 ## Use of open-source libraries and frameworks
 
 The [esp_hal](https://github.com/esp-rs/esp-hal), an esp hardware abstraction layer for Rust. With it you can
-access the ESP GPIO pins, or create other interfaces like i2c in an easy and convenient way. 
+access the ESP GPIO pins, or create other interfaces like i2c in an easy and convenient way.
 
 Also, [embassy](https://embassy.dev/) is used, an asynchronous runtime for embedded systems, that makes it easy
 to create asynchronous tasks and to communicate between those.
@@ -78,15 +80,13 @@ for the Madgwick filter. An adapter around the library API is created to fit our
 
 ## Architecture
 
-We have two asynchronous running tasks, namely the IMU polling task and the notification task. 
-
-
+We have two asynchronous running tasks, namely the IMU polling task and the notification task.
 
 The IMU polling tasks polls every 50 milliseconds in an endless loop the angular velocities,
 as well as the acceleration data from the IMU.
 Directly after, both vectors are given to the Madgwick Filter adapter, to stabilise the errors of the IMU
 data.
-From our Filter we receive a quaternion, which describes the current orientation of our device. 
+From our Filter we receive a quaternion, which describes the current orientation of our device.
 In the end of the loop cycle of the IMU polling task, we check if the device's orientation to the z-Axis (direction of
 gravity) surpasses a threshold.
 Namely, if the angle between the IMU's Z-axis and the gravity's direction
@@ -98,38 +98,58 @@ we generate a PWM signal of 1kHZ for 2 seconds and put the notification task bac
 When the PWM signal is on, an active buzzer generates sound.
 We manually generate the PWM signal
 by setting a General Purpose Input/Output (GPIO) pin to high, wait 500 microseconds and set the GPIO pin
-to low again. While the Buzzer is active (pwm is on) any further signals from the first task are ignored. 
+to low again. While the Buzzer is active (pwm is on) any further signals from the first task are ignored.
 
 ```mermaid
 graph TD
-  subgraph TaskA["Task A - IMU Polling Task"]
-    poll[Poll IMU Data]
-    filter[Madgwick Filter]
-    condA{Orientation surpasses threshold?}
-    notify["Send Signal to Task B"]
-  end
+    subgraph TaskA["Task A - IMU Polling Task"]
+        poll[Poll IMU Data]
+        filter[Madgwick Filter]
+        condA{Orientation surpasses threshold?}
+        notify["Send Signal to Task B"]
+    end
 
-  subgraph TaskB["Task B - Notification Task"]
-    wakeUp["Wake Up"]
-    sleep["Sleep/Idle"]
-    pwm["Generate pwm for 2s"]
-  end
+    subgraph TaskB["Task B - Notification Task"]
+        wakeUp["Wake Up"]
+        sleep["Sleep/Idle"]
+        pwm["Generate pwm for 2s"]
+    end
 
-  poll --> filter 
-  filter --> condA
-  condA -- Yes --> notify
-  condA --> poll
-
-  notify -->|Notify Task B| wakeUp
-  sleep --> wakeUp
-  wakeUp --> pwm
-  pwm --> sleep
-  sleep --> sleep
+    poll --> filter
+    filter --> condA
+    condA -- Yes --> notify
+    condA --> poll
+    notify -->|Notify Task B| wakeUp
+    sleep --> wakeUp
+    wakeUp --> pwm
+    pwm --> sleep
+    sleep --> sleep
 ```
 
 ## Parametrisation of the Madgwick Filter
 
-The Madgwick filter, 
+The Madgwick filter ([paper](https://x-io.co.uk/downloads/madgwick_internal_report.pdf)) is a sensor fusion algorithm
+by [Sebastian Madgwick](https://ahrs.readthedocs.io/en/latest/filters/madgwick.html),
+that is suited well for embedded devices due to its efficiency.
+
+It integrates the angular velocities, by integration of the quaternion derivatives over time.
+As integration of angular velocities from an IMU is prone to drift, the madgwick filter uses
+the earth's gravity field as a reference direction to compensate for that IMU
+drift
+([source here](https://ahrs.readthedocs.io/en/latest/filters/madgwick.html#orientation-as-solution-of-gradient-descent)).
+
+Therefore, the Madgwick filter has one parameter you need to adjust.
+It is called the filter gain beta, and there exist
+some recommendations on which value to choose from.
+
+We use 0.1 as its value (This is the recommended default value for a general purpose application)
+
+TODO: Find table with values and source to it.
+
+When picking the right value for beta, there is a trade-off between the stability
+of the resulting orientation and its response. For example for drones, which
+have to react fast, the Madgwick Filter is optimised for high responsivness.
+On almost static, or human motion tracking.
 
 # Hardware
 
@@ -151,6 +171,7 @@ The device consists of:
 - JST-PH crimp plugs and sockets (To not directly solder the battery to the
   MCU), [link](https://www.bastelgarage.ch/jst-ph-crimp-stecker-und-buchsen-2mm-set-40-stuck)
 
+which are all contained in a 3d printed housing.
 
 ## Wiring
 
@@ -161,7 +182,7 @@ The wiring, however, is exactly the same.
 <img src="images/nerd-neck-fritzing.png" alt="Fritzing Image" width="600"/>
 </div>
 
-The i2c is connected to the  GPIO pin 5 (dataline) and GPIO pin 6 (clockline) of the esp32-s3.
+The i2c is connected to the GPIO pin 5 (dataline) and GPIO pin 6 (clockline) of the esp32-s3.
 
 Furthermore, we use two 4.7k Ohm pull up resistors. Otherwise, the i2c connection does not work, as the sensor can only
 pull the signal down (0Volts), but not up again.
@@ -187,13 +208,13 @@ MCU, the IMU Sensor as well as the buzzer.
 The housing has components to fit in:
 
 - a LiPo battery with dimensions 52x42x5mm
-- the BMI160 IMU  with dimensions 23x27mm
+- the BMI160 IMU with dimensions 23x27mm
 - the esp32s3 from seeed with dimensions ~20x25mm. Also having access to its usb-c port.
 - the piezo buzzer with its dimensions 6mm radius and about 10mm of height
 - spare volume space for the wiring between the components
 
 The parts for the final print can be fetched [here](https://github.com/yguenduez/nerd-neck-esp32/tree/main/3dprint).
-The slicing software has been [Snapmaker Luban](https://www.snapmaker.com/en-US/snapmaker-luban) from the 
+The slicing software has been [Snapmaker Luban](https://www.snapmaker.com/en-US/snapmaker-luban) from the
 same company, that is building the snapmaker 3d printer. For printing we use the F350 Snapmaker Luban 3d printer.
 
 For designing the parts [FreeCad](https://www.freecad.org/), and open-source CAD software was used.
@@ -238,7 +259,7 @@ Choosing of the Filter - Finding the library to it
 ## 3d Printing
 
 TODO: As small and fiddly. You cannot print small, breaking things etc.
-TODO: In total 6 Iterations, until 
+TODO: In total 6 Iterations, until
 TODO: In the end: simple is the best apporach: fitpress
 
 ## API Breaking Changes
