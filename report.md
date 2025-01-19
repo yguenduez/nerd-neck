@@ -27,7 +27,7 @@ command due to the given tooling.
 # Project and Code
 
 The project is open-source with an [MIT](https://en.wikipedia.org/wiki/MIT_License) license. The code and the stl-files
-for the 3d print can be seen at https://github.com/yguenduez/nerd-neck-esp32.
+for the 3d print can be fetched at https://github.com/yguenduez/nerd-neck-esp32.
 
 # Motivation and Outline
 
@@ -98,32 +98,38 @@ we generate a PWM signal of 1kHZ for 2 seconds and put the notification task bac
 When the PWM signal is on, an active buzzer generates sound.
 We manually generate the PWM signal
 by setting a General Purpose Input/Output (GPIO) pin to high, wait 500 microseconds and set the GPIO pin
-to low again.
+to low again. While the Buzzer is active (pwm is on) any further signals from the first task are ignored. 
 
 ```mermaid
 graph TD
   subgraph TaskA["Task A - IMU Polling Task"]
-    loopA[Poll IMU Data Every 50ms]
-    condA{Check Angle Threshold?}
-    notify["Send Notification to Task B"]
+    poll[Poll IMU Data]
+    filter[Madgwick Filter]
+    condA{Orientation\n surpasses\n threshold?}
+    notify["Send Signal to Task B"]
   end
 
   subgraph TaskB["Task B - Notification Task"]
-    sleepB["Sleep/Idle"]
-    notifyB["Wake Up and Generate 1kHz PWM Signal for 2s"]
-    restart["Go Back to Sleep"]
+    wakeUp["Wake Up"]
+    sleep["Sleep/Idle"]
+    pwm["Generate pwm for 2s"]
   end
 
-  loopA --> condA
+  poll --> filter 
+  filter --> condA
   condA -- Yes --> notify
-  condA -- No --> loopA
+  condA --> poll
 
-  notify -->|Notify Task B| sleepB
-  sleepB --> notifyB
-  notifyB --> restart
-  restart --> sleepB
+  notify -->|Notify Task B| wakeUp
+  sleep --> wakeUp
+  wakeUp --> pwm
+  pwm --> sleep
+  sleep --> sleep
 ```
 
+## Parametrisation of the Madgwick Filter
+
+The Madgwick filter, 
 
 # Hardware
 
@@ -133,7 +139,7 @@ The device consists of:
 
 - a small microcontroller unit (MCU), an esp32s3 from xiao seeed, which has a small form
   factor. [Link](https://www.bastelgarage.ch/seeed-studio-xiao-esp32-s3-1-2809?search=esp32s3%20xiao%20seeed).
-- a inertial measurement unit (IMU), that can measure acceleration and the rotation speed with a
+- an inertial measurement unit (IMU), that can measure acceleration and the angular velocity with a
   gyroscope. [Link](https://www.bastelgarage.ch/gravity-i2c-bmi160-6-axis-motion-sensor-with-gyroscope?search=bmi160)
 - a small lithium polymer (LiPo) battery, to power the wearable
   device. [Link](https://www.bastelgarage.ch/solar-lipo-1-105/lipo-battery-1500mah-jst-2-0-lithium-ion-polymer).
@@ -172,6 +178,25 @@ These are the pinouts of the esp32-s3 from xiao seeed.
 <div align="center">
 <img src=images/pinout.png alt="Esp32 Pinouts" width="500"/></div>
 
+## 3D Printed Casing
+
+The 3d printed underwent 6 iterations, until we reached the final version, that consists of a bottom part and a top
+part, that are connected via a press fit connection. The bottom part houses the battery, whereas the top part houses the
+MCU, the IMU Sensor as well as the buzzer.
+
+The housing has components to fit in:
+
+- a LiPo battery with dimensions 52x42x5mm
+- the BMI160 IMU  with dimensions 23x27mm
+- the esp32s3 from seeed with dimensions ~20x25mm. Also having access to its usb-c port.
+- the piezo buzzer with its dimensions 6mm radius and about 10mm of height
+- spare volume space for the wiring between the components
+
+The parts for the final print can be fetched [here](https://github.com/yguenduez/nerd-neck-esp32/tree/main/3dprint).
+The slicing software has been [Snapmaker Luban](https://www.snapmaker.com/en-US/snapmaker-luban) from the 
+same company, that is building the snapmaker 3d printer. For printing we use the F350 Snapmaker Luban 3d printer.
+
+For designing the parts [FreeCad](https://www.freecad.org/), and open-source CAD software was used.
 # Building and Flashing
 
 In order to build and flash the software you need to have the Rust toolchain installed.
@@ -192,21 +217,6 @@ Then `cd` into the `nerd-neck` directory and
 
 To build and flash it the firmware to the device,
 just run `cargo run --release`.
-
-# 3D Printed Casing
-
-The 3d printed underwent 5 iterations, until we reached the final version, that consists of a bottom part and a top
-part, that are connected via a press fit connection. The bottom part houses the battery, whereas the top part houses the
-MCU, the IMU Sensor as well as the buzzer.
-
-Our housing has these requirements:
-
-- a LiPo battery (3.7 Volts),
-  e.g. [this one](https://www.bastelgarage.ch/lipo-akku-1500mah-jst-2-0-lithium-ion-polymer?search=lipo) (52x42x5mm),
-- the BMI160 IMU from DFRobots with dimensions 23x27mm as well as the
-- the esp32s3 from seeed with dimensions ~20x25mm. Also having access to its usb-c port.
-- the piezo buzzer with its dimensions, e.g. [this one](https://www.bastelgarage.ch/piezo-buzzer-summer-aktiv) (12mm)
-- spare volume space for the wiring between the components
 
 # Challenges
 
