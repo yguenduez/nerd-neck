@@ -1,11 +1,11 @@
 # Nerd Neck - Computer Architecture HS2024
 
 Report for the nerd neck device. An embedded project for the lecture _Computer Architecture_ at the University Basel for
-HS 2024.
+HS 2024. 
 
-## Students
+Date: 19.01.2025
 
-Yasin Gündüz
+Student: Yasin Gündüz
 
 # Abstract
 
@@ -37,17 +37,15 @@ the time. We want to reduce the time, people are sitting in a bad posture, which
 
 Therefore, we create a small wearable device, that is attached to the back of a person. That device should detect, if a
 person has
-a bad posture, e.g. during sitting. There we poll IMU data every 50 milliseconds and applying a sensor fusion algorithm
-to overcome the IMU-Drift.
-
-# Functionality
+a bad posture, e.g. during sitting. Like a seat belt in car, that is not closed, an annoying sound should remind the
+wearer of the device of his bad posture.
 
 The device is polling the current orientation from the intertial measurement unit (IMU) every 50 milliseconds.
-As the IMU angular velocities are error-prone in general, we use a sensor fusion algorithm,
+As the IMU angular velocities are error-prone in general, a sensor fusion algorithm is used,
 i.e. the Madgwick filter, to integrate the angular velocity over time and have an error correction to it. 
 
 If the orientation surpasses a configurable threshold, we activate an active buzzer, that is powered
-directly with a 1kHz Pulse Modulo Width (PWM) signal.
+directly with a 1kHz Pulse Modulo Width (PWM) signal, generating the annoying sound.
 
 # Software
 
@@ -55,7 +53,7 @@ The firmware for the esp32s3 is written with Rust. [Espressif](https://www.espre
 family created a lot of tooling
 around Rust
 for their chips. With one line of a command, we can build and flash our firmware directly onto the esp32 from any host
-system (in this case MacOS and Windows 11) via usb-c.
+system (in this case MacOS or Windows 11) via usb-c.
 
 ## Use of open-source libraries and frameworks
 
@@ -142,12 +140,12 @@ Therefore, the Madgwick filter has one parameter you need to adjust.
 It is called the filter gain beta, and there exist
 some recommendations on which value to choose from.
 
-We use 0.1 as its value (This is the recommended default value for a general purpose application)
+A value of 0.1 is used (This is the recommended default value for a general purpose application).
 
 When picking the right value for beta, there is a trade-off between the stability
 of the resulting orientation and its response. For example for drones, which
 have to react fast, the Madgwick Filter is optimised for high responsiveness.
-On almost static, or human motion tracking the filter is optimized for 
+On almost static, or human motion tracking the filter is optimised for stable output.
 
 # Hardware
 
@@ -182,10 +180,10 @@ The wiring, however, is exactly the same.
 
 The i2c is connected to the GPIO pin 5 (dataline) and GPIO pin 6 (clockline) of the esp32-s3.
 
-Furthermore, we use two 4.7k Ohm pull up resistors. Otherwise, the i2c connection does not work, as the sensor can only
-pull the signal down (0Volts), but not up again.
+Furthermore, two 4.7k Ohm pull up resistors are used. Otherwise, the i2c connection does not work, as the sensor can only
+pull the signal down, but not up again.
 
-The active buzzer is directly connected to the GPIO pin 7 of the esp32 with a 100 Ohms resistor
+The active buzzer is directly connected to GPIO pin 7 of the esp32 with a 100 Ohm resistor
 to protect the GPIO from overdrawing it.
 
 You can find the pins below in the pinouts section.
@@ -242,36 +240,44 @@ Then `cd` into the `nerd-neck` directory and
 To build and flash it the firmware to the device,
 just run `cargo run --release`.
 
-# Challenges
+# Closing
+
+Creating an embedded device was quite a challenge, but quite a rewarding experience, doing things like soldering
+the first time.
+
+## Challenges
 
 There have been several challenges when doing this project.
 
-## IMU Drift
+### IMU Drift
 
 It is quite a known problem that IMU data (especially gyroscope data) is prone to drift, when integrated over time.
 Finding a solutions to it is trivial, as several different sensor fusion algorithms exist
 to this problem.
 So this issue was a more spoilt for choice.
 
-We looked at below possible filters:
+Several known sensor fusion algorithms have been looked at:
 
 - Complementary filter (simpler but effective for many use cases).
 - Madgwick filter (a fast, quaternion-based algorithm for IMUs).
 - Mahony filter (similar to Madgwick with some differences in accuracy and computation).
 - Kalman filter (complex but precise, especially for combining multiple sensors).
 
-In the end, it was more a question of whether we could already find an existing, well working library for the filter
+In the end, it was more a question of whether there is an existing, well working library for the filter
 problem,
 which was found in the [ahrs-rs](https://github.com/jmagnuson/ahrs-rs) library. It implements the Madgwick filter.
 
-## 3d Printing
+If there was more time, the different filters could have been compared to one another.
+
+### 3d Printing
 
 Printing such a small device, with wall thickness at around 1mm is prone to break,
 when already a small force is applied.
 
 As a casing was built, it always consisted of a bottom part and a top part.
-In the bottom part the battery is housed. Whereas in top part, the IMU, MCU and
-the buzzer have their places.
+In the bottom part, the battery is housed.
+Whereas in top part, the IMU, MCU and
+the buzzer have their place.
 
 Issues occurred when trying to connect the bottom and the top part of the casing.
 In the first designs (You can look at the [projects readme](https://github.com/yguenduez/nerd-neck-esp32)),
@@ -282,24 +288,24 @@ Here the issue has been that the space within the casing got too small. Whereas 
 was quite big.
 
 In the final designs, everything was simplified. Instead of snapping and sliding,
-we overfit the bottom and the top part. Meaning they do not fit perfectly into each other.
-So you have to press both parts into each other. The friciton between those parts are keeping those
+an overfit between the bottom and the top part is used, a so called _press-fit_. Meaning they do not fit perfectly into one other.
+You have to press both parts into each other. The friction between those parts are keeping those
 parts together. The design is much simpler than the previous ones.
 
-## API Breaking Changes
+### API Breaking Changes
 
 As Rust is quite new (atleast in the embedded world) library APIs tend to break a lot. This means tutorials and howtos,
 where you get your information from, are already outdated, when you read themo.
 
-Even the use of ChatGPT was of not of much use, as its training data has been from older version of the documentation of
-libraries.
-Only the libraries' documentations themselves where helpful,
+Even the use of ChatGPT was of not of much use, as its training data has been from older versions of the documentation of
+libraries. It only helped in finding a library, but not with its usage.
+Only the libraries' documentations themselves were really helpful,
 when developing Rust on the embedded side.
 
 Usually a crate (A rust library or executable, anything that creates a binary) comes with documentation. But its up
 to the maintainer of the library to keep the documentation up to date.
 
-## Soldering
+### Soldering
 
 With no prior experience in soldering, it was quite hard to solder everything together. Below you can see
 the soldered device (before it went into the housing).
@@ -308,7 +314,10 @@ the soldered device (before it went into the housing).
 <img src="images/soldered_prototype.jpeg" alt="Fritzing Image" width="400"/>
 </div>
 
-# Outlook
+
+Creating this project was a pleasant first embedded experience, creating a device, that can help 
+
+### Improvements
 
 There are several ideas that could be followed:
 
