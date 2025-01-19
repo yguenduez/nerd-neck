@@ -6,26 +6,23 @@ HS 2024.
 ## Students involved
 
 Yasin Gündüz  
-Hares Balasubramaniam
 
 # Abstract
 
-Our project, Nerd Neck, is a 3d printed wearable device designed to help people improve their posture, especially those
+The Nerd Neck project is a 3d printed wearable device designed to help people maintain a good posture, especially those
 who
 spend long hours sitting, like office workers or students.
 
-Bad posture, known as "nerd neck," can lead to serious back
-pain over time, and this device aims to prevent this.
-The device uses an ESP32-S3 microcontroller, a 6-DoF IMU sensor to detect movement and angles, a LiPo battery
+The device uses an ESP32-S3 microcontroller, a 6-DoF IMU sensor to detect the current orientation, a LiPo battery
 for portability, and an active piezo buzzer that alerts the user when their posture needs correcting. By analyzing
 IMU
 data and applying a Madgwick filter for accuracy, it detects poor posture efficiently.
 
-The device is programmed in Rust, using tools like esp-hal, a hardware abstraction layer for the esp family. Also,
+The device firmware is programmed in Rust, using tools like esp-hal, a hardware abstraction layer for the esp family. Also,
 embassy is used, an async runtime for embedded targets, making it pleasant to run asynchronous tasks. The firmware
 can
 be built and flashed directly from a computer with one simple
-command due to the given Rust tooling.
+command due to the given tooling.
 
 # Project and Code
 
