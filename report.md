@@ -80,6 +80,8 @@ for the Madgwick filter. An adapter around the library API is created to fit our
 
 We have two asynchronous running tasks, namely the IMU polling task and the notification task. 
 
+
+
 The IMU polling tasks polls every 50 milliseconds in an endless loop the angular velocities,
 as well as the acceleration data from the IMU.
 Directly after, both vectors are given to the Madgwick Filter adapter, to stabilise the errors of the IMU
@@ -97,6 +99,30 @@ When the PWM signal is on, an active buzzer generates sound.
 We manually generate the PWM signal
 by setting a General Purpose Input/Output (GPIO) pin to high, wait 500 microseconds and set the GPIO pin
 to low again.
+
+```mermaid
+graph TD
+  subgraph TaskA["Task A - IMU Polling Task"]
+    loopA[Poll IMU Data Every 50ms]
+    condA{Check Angle Threshold?}
+    notify["Send Notification to Task B"]
+  end
+
+  subgraph TaskB["Task B - Notification Task"]
+    sleepB["Sleep/Idle"]
+    notifyB["Wake Up and Generate 1kHz PWM Signal for 2s"]
+    restart["Go Back to Sleep"]
+  end
+
+  loopA --> condA
+  condA -- Yes --> notify
+  condA -- No --> loopA
+
+  notify -->|Notify Task B| sleepB
+  sleepB --> notifyB
+  notifyB --> restart
+  restart --> sleepB
+```
 
 
 # Hardware
