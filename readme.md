@@ -26,8 +26,8 @@ The whole device is a wearable, so it needs a battery (LiPo) and a 3d printed ca
 - [x] Print the casing
 - [x] Assemble the parts
 - [ ] Test different parameters (Hz ratio, Beta value etc.), and document outcome
-- [ ] Write Report with Markdown
-- [ ] Slides with UniBas flavour
+- [x] Write Report with Markdown
+- [x] Slides with UniBas flavour
 
 ## IMU Drift
 
