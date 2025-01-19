@@ -3,7 +3,7 @@
 Report for the nerd neck device. An embedded project for the lecture _Computer Architecture_ at the University Basel for
 HS 2024.
 
-## Students involved
+## Students
 
 Yasin Gündüz
 
@@ -11,7 +11,7 @@ Yasin Gündüz
 
 The Nerd Neck project is a 3d printed wearable device designed to help people maintain a good posture, especially those
 who
-spend long hours sitting, like office workers or students.
+spend long hours sitting, like office workers or students. The device is attached to a persons back.
 
 The device uses an ESP32-S3 microcontroller, a 6-DoF IMU sensor to detect the current orientation, a LiPo battery
 for portability, and an active piezo buzzer that alerts the user when their posture needs correcting. By analyzing
@@ -42,9 +42,9 @@ to overcome the IMU-Drift.
 
 # Functionality
 
-The device is polling the current orientation from the intertial measurement unit (IMU) every 50 milliseconds, resulting
-in frequency of 20 hertz. As the imu angular velocities are error-prone in general, we use a sensor fusion algorithm,
-i.e. the Madgwick filter, to stabilise the orientation we get.
+The device is polling the current orientation from the intertial measurement unit (IMU) every 50 milliseconds.
+As the IMU angular velocities are error-prone in general, we use a sensor fusion algorithm,
+i.e. the Madgwick filter, to integrate the angular velocity over time and have an error correction to it. 
 
 If the orientation surpasses a configurable threshold, we activate an active buzzer, that is powered
 directly with a 1kHz Pulse Modulo Width (PWM) signal.
@@ -144,12 +144,10 @@ some recommendations on which value to choose from.
 
 We use 0.1 as its value (This is the recommended default value for a general purpose application)
 
-TODO: Find table with values and source to it.
-
 When picking the right value for beta, there is a trade-off between the stability
 of the resulting orientation and its response. For example for drones, which
-have to react fast, the Madgwick Filter is optimised for high responsivness.
-On almost static, or human motion tracking.
+have to react fast, the Madgwick Filter is optimised for high responsiveness.
+On almost static, or human motion tracking the filter is optimized for 
 
 # Hardware
 
@@ -246,28 +244,80 @@ just run `cargo run --release`.
 
 # Challenges
 
-The main challenge of this project has been the 3d printing of the casing, as well as overcoming the IMU drift.
-
-Also, as Rust is a relatively new language (compared to C), libraries and the hardware abstraction layer tend to have
-many breaking changes in their APIs.
+There have been several challenges when doing this project.
 
 ## IMU Drift
 
-TODO: Integration of
-Choosing of the Filter - Finding the library to it
+It is quite a known problem that IMU data (especially gyroscope data) is prone to drift, when integrated over time.
+Finding a solutions to it is trivial, as several different sensor fusion algorithms exist
+to this problem.
+So this issue was a more spoilt for choice.
+
+We looked at below possible filters:
+
+- Complementary filter (simpler but effective for many use cases).
+- Madgwick filter (a fast, quaternion-based algorithm for IMUs).
+- Mahony filter (similar to Madgwick with some differences in accuracy and computation).
+- Kalman filter (complex but precise, especially for combining multiple sensors).
+
+In the end, it was more a question of whether we could already find an existing, well working library for the filter
+problem,
+which was found in the [ahrs-rs](https://github.com/jmagnuson/ahrs-rs) library. It implements the Madgwick filter.
 
 ## 3d Printing
 
-TODO: As small and fiddly. You cannot print small, breaking things etc.
-TODO: In total 6 Iterations, until
-TODO: In the end: simple is the best apporach: fitpress
+Printing such a small device, with wall thickness at around 1mm is prone to break,
+when already a small force is applied.
+
+As a casing was built, it always consisted of a bottom part and a top part.
+In the bottom part the battery is housed. Whereas in top part, the IMU, MCU and
+the buzzer have their places.
+
+Issues occurred when trying to connect the bottom and the top part of the casing.
+In the first designs (You can look at the [projects readme](https://github.com/yguenduez/nerd-neck-esp32)),
+it was tried to snap both parts together. Those snappings, however, always broke.
+
+The designs after tried a slide approach. You could slide the bottom part into the top part.
+Here the issue has been that the space within the casing got too small. Whereas the housing itself
+was quite big.
+
+In the final designs, everything was simplified. Instead of snapping and sliding,
+we overfit the bottom and the top part. Meaning they do not fit perfectly into each other.
+So you have to press both parts into each other. The friciton between those parts are keeping those
+parts together. The design is much simpler than the previous ones.
 
 ## API Breaking Changes
 
-TODO: New versions, new API - need to study the docs.
+As Rust is quite new (atleast in the embedded world) library APIs tend to break a lot. This means tutorials and howtos,
+where you get your information from, are already outdated, when you read themo.
+
+Even the use of ChatGPT was of not of much use, as its training data has been from older version of the documentation of
+libraries.
+Only the libraries' documentations themselves where helpful,
+when developing Rust on the embedded side.
+
+Usually a crate (A rust library or executable, anything that creates a binary) comes with documentation. But its up
+to the maintainer of the library to keep the documentation up to date.
 
 ## Soldering
 
-TODO: Soldering parallel parts, like the pull up resistors
+With no prior experience in soldering, it was quite hard to solder everything together. Below you can see
+the soldered device (before it went into the housing).
+
+<div align="center">
+<img src="images/soldered_prototype.jpeg" alt="Fritzing Image" width="400"/>
+</div>
 
 # Outlook
+
+There are several ideas that could be followed:
+
+- Using an MCU with an integrated IMU: For example
+  the [Seeed xiao nRF sense](https://www.seeedstudio.com/Seeed-XIAO-BLE-Sense-nRF52840-p-5253.html) comes with an
+  integrated IMU. With this the I2c connection could be made obsolet.
+- Smaller LiPo Battery: The battery is quite oversized for project. A smaller battery could be used, making the device
+  even smaller
+- All the MCUs support Bluetooth. Or even Bluetooth Low Energy. One could connect the device via bluetooth to a
+  smartphone.
+- Cable Management is quite complex for such a small project: This could be simplified. One could even design his own
+  PCB.
