@@ -1,7 +1,7 @@
 # Nerd Neck - Computer Architecture HS2024
 
 Report for the nerd neck device. An embedded project for the lecture _Computer Architecture_ at the University Basel for
-HS 2024. 
+HS 2024.
 
 Date: 19.01.2025
 
@@ -42,7 +42,7 @@ wearer of the device of his bad posture.
 
 The device is polling the current orientation from the intertial measurement unit (IMU) every 50 milliseconds.
 As the IMU angular velocities are error-prone in general, a sensor fusion algorithm is used,
-i.e. the Madgwick filter, to integrate the angular velocity over time and have an error correction to it. 
+i.e. the Madgwick filter, to integrate the angular velocity over time and have an error correction to it.
 
 If the orientation surpasses a configurable threshold, we activate an active buzzer, that is powered
 directly with a 1kHz Pulse Modulo Width (PWM) signal, generating the annoying sound.
@@ -180,7 +180,8 @@ The wiring, however, is exactly the same.
 
 The i2c is connected to the GPIO pin 5 (dataline) and GPIO pin 6 (clockline) of the esp32-s3.
 
-Furthermore, two 4.7k Ohm pull up resistors are used. Otherwise, the i2c connection does not work, as the sensor can only
+Furthermore, two 4.7k Ohm pull up resistors are used. Otherwise, the i2c connection does not work, as the sensor can
+only
 pull the signal down, but not up again.
 
 The active buzzer is directly connected to GPIO pin 7 of the esp32 with a 100 Ohm resistor
@@ -288,7 +289,8 @@ Here the issue has been that the space within the casing got too small. Whereas 
 was quite big.
 
 In the final designs, everything was simplified. Instead of snapping and sliding,
-an overfit between the bottom and the top part is used, a so called _press-fit_. Meaning they do not fit perfectly into one other.
+an overfit between the bottom and the top part is used, a so called _press-fit_. Meaning they do not fit perfectly into
+one other.
 You have to press both parts into each other. The friction between those parts are keeping those
 parts together. The design is much simpler than the previous ones.
 
@@ -297,7 +299,8 @@ parts together. The design is much simpler than the previous ones.
 As Rust is quite new (atleast in the embedded world) library APIs tend to break a lot. This means tutorials and howtos,
 where you get your information from, are already outdated, when you read themo.
 
-Even the use of ChatGPT was of not of much use, as its training data has been from older versions of the documentation of
+Even the use of ChatGPT was of not of much use, as its training data has been from older versions of the documentation
+of
 libraries. It only helped in finding a library, but not with its usage.
 Only the libraries' documentations themselves were really helpful,
 when developing Rust on the embedded side.
@@ -315,7 +318,7 @@ the soldered device (before it went into the housing).
 </div>
 
 
-Creating this project was a pleasant first embedded experience, creating a device, that can help 
+Creating this project was a pleasant first embedded experience, creating a device, that can help
 
 ### Improvements
 
@@ -323,10 +326,13 @@ There are several ideas that could be followed:
 
 - Using an MCU with an integrated IMU: For example
   the [Seeed xiao nRF sense](https://www.seeedstudio.com/Seeed-XIAO-BLE-Sense-nRF52840-p-5253.html) comes with an
-  integrated IMU. With this the I2c connection could be made obsolet.
-- Smaller LiPo Battery: The battery is quite oversized for project. A smaller battery could be used, making the device
+  integrated IMU. With this the I2c connection could be made obsolete.
+- Smaller LiPo Battery: The battery is quite oversized for such a small project. A smaller battery could be used, making
+  the device
   even smaller
 - All the MCUs support Bluetooth. Or even Bluetooth Low Energy. One could connect the device via bluetooth to a
   smartphone.
 - Cable Management is quite complex for such a small project: This could be simplified. One could even design his own
   PCB.
+- There is no information about the current battery charge. One could implement a small battery charge reader with an
+  analog input pin
