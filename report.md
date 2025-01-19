@@ -50,17 +50,17 @@ If the orientation surpasses a configurable threshold, we activate an active buz
 
 # Software
 
-We decided to program the esp32s3 with Rust. [Espressif](https://www.espressif.com/), the creators of the esp32 family created a lot of tooling
+The firmware for the esp32s3 is written with Rust. [Espressif](https://www.espressif.com/), the creators of the esp32 family created a lot of tooling
 around Rust
 for their chips. With one line of a command, we can build and flash our firmware directly onto the esp32 from any host
 system (in this case MacOS and Windows 11) via usb-c.
 
 ## Use of open-source libraries and frameworks
 
-We use the [esp_hal](https://github.com/esp-rs/esp-hal), an esp hardware abstraction layer for Rust. With it you can
+The [esp_hal](https://github.com/esp-rs/esp-hal), an esp hardware abstraction layer for Rust. With it you can
 access the ESP GPIO pins, or create other interfaces like i2c in an easy and convenient way. 
 
-Also, we used [embassy](https://embassy.dev/), an asynchronous runtime for embedded systems, that makes it easy
+Also, [embassy](https://embassy.dev/) is used, an asynchronous runtime for embedded systems, that makes it easy
 to create asynchronous tasks and to communicate between those.
 
 For the inertial measurement unit (IMU), we use a library called [bmi160-rs](https://github.com/eldruin/bmi160-rs) and
@@ -105,7 +105,7 @@ graph TD
   subgraph TaskA["Task A - IMU Polling Task"]
     poll[Poll IMU Data]
     filter[Madgwick Filter]
-    condA{Orientation\n surpasses\n threshold?}
+    condA{Orientation surpasses threshold?}
     notify["Send Signal to Task B"]
   end
 
@@ -197,6 +197,11 @@ The slicing software has been [Snapmaker Luban](https://www.snapmaker.com/en-US/
 same company, that is building the snapmaker 3d printer. For printing we use the F350 Snapmaker Luban 3d printer.
 
 For designing the parts [FreeCad](https://www.freecad.org/), and open-source CAD software was used.
+
+Below you can see the finished 3d printed casing in its final version.
+
+![case opened](images/case_empty_open.jpeg)
+
 # Building and Flashing
 
 In order to build and flash the software you need to have the Rust toolchain installed.
@@ -243,3 +248,5 @@ TODO: New versions, new API - need to study the docs.
 ## Soldering
 
 TODO: Soldering parallel parts, like the pull up resistors
+
+# Outlook
