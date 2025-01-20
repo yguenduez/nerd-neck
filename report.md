@@ -142,6 +142,7 @@ there are two asynchronous running tasks, namely the IMU polling task and the no
 see in the below flowchart diagram.
 
 ```mermaid
+%%{init: {'theme': 'base', 'themeVariables': { 'scale': 3 }}}%%
 flowchart LR 
   subgraph TaskA["Task A - IMU Polling Task"]
     poll[Poll IMU Data]
