@@ -76,6 +76,8 @@ which is designed to work well on an embedded system. The filter is especially d
 we use here. As a library, we use [ahrs-rs](https://github.com/jmagnuson/ahrs-rs), which is a rust implementation
 for the Madgwick filter. An adapter around the library API is created to fit our needs.
 
+Furthermore, [nalgebra](https://github.com/dimforge/nalgebra) is used to work with quaternions, calculating angles.
+
 ## Architecture
 
 We have two asynchronous running tasks, namely the IMU polling task and the notification task.
