@@ -752,7 +752,6 @@ name = "nerd-neck"
 version = "0.1.0"
 dependencies = [
  "bmi160",
- "critical-section",
  "embassy-executor",
  "embassy-sync 0.6.1",
  "embassy-time",
@@ -761,7 +760,6 @@ dependencies = [
  "esp-hal-embassy",
  "esp-println",
  "log",
- "static_cell",
  "utility",
 ]
 

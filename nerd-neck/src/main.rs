@@ -28,13 +28,9 @@ async fn imu_poll(mut imu: ImuAdapter<'static>, mut madgwick: MadgwickAdapter) {
         let (gyro, accel) = imu.get_data();
         let update_result = madgwick.update(gyro, accel);
         if let Ok(quaternion) = update_result {
-            let (roll, pitch, yaw) = quaternion.euler_angles();
-            info!("Roll: {:.2}, Pitch: {:.2}, Yaw: {:.2}", roll, pitch, yaw);
-
             let angle = quaternion_to_z_axis_angle((*quaternion).into());
             info!("Angle to z-axis: {:.2}", angle);
 
-            // notify the other task if we surpass a certain threshold
             if back_is_bend(angle) {
                 BUZZER_SIGNAL.signal(NotifyPerson);
             }
