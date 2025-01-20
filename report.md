@@ -275,6 +275,9 @@ In the below list, more improvements are added:
 
 # References
 
+The project itself is open-sourced at [https://github.com/yguenduez/nerd-neck](https://github.com/yguenduez/nerd-neck).
+The code, stl files for printing and more documentation (on e.g. how to build and flash it), can be found there.
+
 ## Content
 
 - [Madgwick Paper](https://courses.cs.washington.edu/courses/cse466/14au/labs/l4/madgwick_internal_report.pdf)
