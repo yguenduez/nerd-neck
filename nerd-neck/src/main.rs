@@ -2,19 +2,21 @@
 #![no_main]
 
 use embassy_executor::{task, Spawner};
-use embassy_time::{Duration, Instant, Timer};
+use embassy_time::{Duration, Timer};
 use esp_backtrace as _;
 use esp_hal::gpio::{Level, Output};
 use esp_hal::i2c::master::{Config, I2c};
 use esp_hal::prelude::*;
 use log::info;
-use test_esp32s3_embassy::ImuAdapter;
 use utility::angle::{back_is_bend, quaternion_to_z_axis_angle};
 use utility::madgwick_adapter::MadgwickAdapter;
 
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embassy_sync::signal::Signal;
-static SHARED: Signal<CriticalSectionRawMutex, NotifyPerson> = Signal::new();
+use nerd_neck::buzzer_adapter::BuzzerAdapter;
+use nerd_neck::ImuAdapter;
+
+static BUZZER_SIGNAL: Signal<CriticalSectionRawMutex, NotifyPerson> = Signal::new();
 
 struct NotifyPerson;
 
@@ -34,7 +36,7 @@ async fn imu_poll(mut imu: ImuAdapter<'static>, mut madgwick: MadgwickAdapter) {
 
             // notify the other task if we surpass a certain threshold
             if back_is_bend(angle) {
-                SHARED.signal(NotifyPerson);
+                BUZZER_SIGNAL.signal(NotifyPerson);
             }
         }
         Timer::after(POLL_INTERVAL).await;
@@ -42,28 +44,11 @@ async fn imu_poll(mut imu: ImuAdapter<'static>, mut madgwick: MadgwickAdapter) {
 }
 
 #[task]
-async fn notification(mut pin: Output<'static>) {
+async fn notification(mut buzzer: BuzzerAdapter<'static>) {
     loop {
-        let _ = SHARED.wait().await;
-        let now = Instant::now();
-        loop {
-            pin.set_high();
-
-            let duration = Duration::from_micros(500);
-            Timer::after(duration).await;
-
-            pin.set_low();
-
-            let duration = Duration::from_micros(500);
-            Timer::after(duration).await;
-
-            let current_timestamp = Instant::now();
-            let beeper_end = current_timestamp - now > Duration::from_secs(2);
-            if beeper_end {
-                break;
-            }
-        }
-        SHARED.reset();
+        let _ = BUZZER_SIGNAL.wait().await;
+        buzzer.beep_2_seconds().await;
+        BUZZER_SIGNAL.reset();
     }
 }
 
@@ -93,7 +78,8 @@ async fn main(spawner: Spawner) {
 
     let gpio = peripherals.GPIO7;
     let beeper_pin = Output::new(gpio, Level::Low);
+    let buzzer = BuzzerAdapter::new(beeper_pin);
 
     spawner.spawn(imu_poll(imu, madgwick)).unwrap();
-    spawner.spawn(notification(beeper_pin)).unwrap();
+    spawner.spawn(notification(buzzer)).unwrap();
 }
