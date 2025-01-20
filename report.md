@@ -275,7 +275,10 @@ In the below list, more improvements are added:
 
 # References
 
-Below references and used materials
+## Content
+
+- [Madgwick Paper](https://courses.cs.washington.edu/courses/cse466/14au/labs/l4/madgwick_internal_report.pdf)
+- [Sharing Data amognst asynchronous tasks in embassy](https://dev.to/theembeddedrustacean/sharing-data-among-tasks-in-rust-embassy-synchronization-primitives-59hk)
 
 ## Use of open-source libraries and frameworks
 
@@ -285,11 +288,10 @@ access the ESP GPIO pins, or create other interfaces like i2c in an easy and con
 Also, [embassy](https://embassy.dev/) is used, an asynchronous runtime for embedded systems, that makes it easy
 to create asynchronous tasks and to communicate between those.
 
-For the inertial measurement unit (IMU), we use a library called [bmi160-rs](https://github.com/eldruin/bmi160-rs) and
-created a small adapter around the library's API to our needs.
+For the inertial measurement unit (IMU), a library called [bmi160-rs](https://github.com/eldruin/bmi160-rs) is used and
+I created a small adapter around the library's API to our needs.
 
-As a library for the IMU, we use [ahrs-rs](https://github.com/jmagnuson/ahrs-rs), which is a rust implementation
-for the Madgwick filter. An adapter around the library API is created to fit our needs.
+As a library for the Madgwick filter, I used [ahrs-rs](https://github.com/jmagnuson/ahrs-rs), which is a rust implementation. An adapter around the library API is created to fit our needs.
 
 Furthermore, [nalgebra](https://github.com/dimforge/nalgebra) is used to work with quaternions, calculating angles.
 
