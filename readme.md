@@ -2,6 +2,14 @@
 
 This small device will detect bad posture, if the person wearing this device has it attached to the back.
 
+## Project structure
+
+- [3dprint](3dprint): STL-Files for printing
+- [images](images): All images used in the report or in this readme
+- [nerd-neck](nerd-neck): Source code: Entry point for the program
+- [utility](utility): Source code: Utility functions and the madgwick adapter
+- [nerd-neck-report](nerd-neck-report): The [mdbook](https://github.com/rust-lang/mdBook) to render the report to pdf
+
 ## Outline
 
 We read IMU data in a cycle. Every x milliseconds we receive IMU data.
