@@ -1,9 +1,12 @@
-# Nerd Neck - Computer Architecture HS2024
+# Nerd Neck - A wearable health device
 
-Report for the nerd neck device. An embedded project for the lecture _Computer Architecture_ at the University Basel for
-HS 2024.
+## Context
 
-Date: 19.01.2025
+This is the report for the nerd neck device. An embedded project for the lecture _Computer Architecture_ at the
+University Basel for
+the semester 2024.
+
+Date: 20.01.2025
 
 Student: Yasin Gündüz
 
@@ -16,14 +19,36 @@ or standing, to decrease health issues originated by bad posture habits.
 
 The nerd neck device is a 3d-printed wearable device where the device is
 attached to a persons back and tracks the back's orientation in regards the gravity's axis.
-Using an ESP32 and programmed in Rust, an inertial measurement unit together with a sensor fusion filter is 
+Using an ESP32 and programmed in Rust, an inertial measurement unit together with a sensor fusion filter is
 efficiently detecting the person's posture. When a bad posture is detected, a buzzer will notify the person to correct
 the posture.
 
-# Project and Code
+# Introduction
+
+Office workers, or programmers at work, tend to have a bad posture in front of their laptops, or working at
+desks. When exposed too long to a bad posture, this can result in several health issues. Back pain is just one example
+of this.
+There are already countermeasures to fight bad postures. For example ergonomic trainings for office
+workers are carried out, to make working in office jobs healthier.
+
+The approach this project is following is a bit different. Instead of proactive trainings,
+the outcome of this project should react to bad posture of a person and a user
+should be notified when having a posture.
+
+As this project should be wearable, it means the device must be battery powered. Also, as a person
+is wearing this device, the form factor of the device should not be big, so it is for example
+attachable to a person's back.
+
+The project is already restricted to be as small as possible and battery powered. Being battery powered,
+it also means it is not allowed to draw much current to remain as long as possible active.
 
 The project is open-source with an [MIT](https://en.wikipedia.org/wiki/MIT_License) license. The code and the stl-files
 for the 3d print can be fetched at https://github.com/yguenduez/nerd-neck.
+Moreover, it must track the posture of a person to be able to react to a bad posture.
+And finally, the person must also be notified when being in a bad posture.
+
+In the following section, I will describe how I solved above goals.
+
 
 # Motivation and Outline
 
