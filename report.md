@@ -53,7 +53,7 @@ In the following section, I will describe how I solved above goals.
 
 The 3d printed device is polling the current orientation from the inertial measurement unit (IMU) every 50 milliseconds.
 As the IMU angular velocities are error-prone in general, a sensor fusion algorithm is used,
-i.e. the Madgwick filter, to integrate the angular velocity over time and have an error correction to it.
+i.e. the Madgwick filter (a sensor fusion filter), to integrate the angular velocity over time and have an error correction to it.
 
 If the orientation surpasses a configurable threshold, an active buzzer is activated, that is powered
 directly with a 1kHz Pulse Modulo Width (PWM) signal, generating the notification sound.
@@ -65,7 +65,7 @@ directly with a 1kHz Pulse Modulo Width (PWM) signal, generating the notificatio
 To be as small as possible, the esp32s3 from seeed xiao, a microcontroller unit (MCU), is used.
 It comes with a small form factor and can be directly
 soldered to a Lithium-Polymer (LiPo) battery for which it has an integrated circuit to load the battery.
-This already solves the battery goal of this project.
+This already solves the battery-driven goal of this project.
 
 To measure the person's bad posture, it is enough to measure the orientation of a person's back. Therefore,
 we use an inertial measurement unit (IMU), that gives us the orientation information with its gyroscope values.
@@ -100,8 +100,9 @@ As the LiPo battery is quite flat, the battery is housed in the bottom part, whe
 top shell is housing the MCU, the buzzer as well as the IMU.
 
 There were a lot of problems with the initial designs (you can see them at
-the [nerd-neck project] (https://github.com/yguenduez/nerd-neck)).
-First it was tried create a design, that allows the bottom shell to be snapped in the top shell of the housing to close
+the [nerd-neck project](https://github.com/yguenduez/nerd-neck)).
+First, it was tried
+to create a design that allows the bottom shell to be snapped in the top shell of the housing to close
 it.
 
 However, the small snapping elements always broke, because they had to be
@@ -122,22 +123,161 @@ You can see both shells in the pictures below, without and with the components i
 
 # Software
 
-TODO: Rust
+The firmware for the esp32s3 is written with Rust. [Espressif](https://www.espressif.com/), the creators of the esp32
+family created a lot of tooling it in Rust
+for their chips. With one line of a command, you can build and flash the firmware directly onto the esp32 from any host
+system (in this case MacOS or Windows 11) via usb-c. This project makes also use of the
+[esp_hal](https://github.com/esp-rs/esp-hal). A hardware abstraction layer for the esp32 family.
+
+The only downside to Rust in the embedded world has been, that it is quite new. Tutorials and HowTos
+were already outdated, when reading them. Generally you have to stick to the latest documentation, 
+that comes with a library you use.
+Even trying to use ChatGPT for programming rendered useless, as the recommended APIs were already outdated. And most
+of the APIs had breaking changes in them.
 
 ## Architecture
 
-TODO: Tasks
+In software, the tracking of a person's pose and the notification of a bad posture is separated. Therefore,
+there are two asynchronous running tasks, namely the IMU polling task and the notification task, which you can see in
+see in the below flowchart diagram.
 
-## Madgwick-Filter
+```mermaid
+flowchart LR 
+  subgraph TaskA["Task A - IMU Polling Task"]
+    poll[Poll IMU Data]
+    filter[Madgwick Filter]
+    condA{Orientation surpasses threshold?}
+    notify["Send Signal to Task B"]
+  end
 
-How it works
+  subgraph TaskB["Task B - Notification Task"]
+    wakeUp["Wake Up"]
+    sleep["Sleep/Idle"]
+    pwm["Generate pwm for 2s"]
+  end
+
+  poll --> filter
+  filter --> condA
+  condA -- Yes --> notify
+  condA  --> poll
+  notify -->|Notify Task B| wakeUp
+  sleep --> wakeUp
+  wakeUp --> pwm
+  pwm --> sleep
+  sleep --> sleep
+```
+
+The IMU polling task polls the angular velocities,
+as well as the acceleration data from the IMU every 50 milliseconds.
+Directly after, both vectors are given to the Madgwick Filter adapter, to correct the errors of the IMU
+data.
+
+From our filter we receive a quaternion, which describes the current orientation of our device.
+At the end of the loop cycle of the IMU polling task, we check if the device's orientation to the z-Axis (direction of
+gravity) surpasses a threshold.
+Namely, if the angle between the device and the gravity's direction
+is greater than 22.5 degrees, we send a signal to the notification task, to wake it up.
+
+The notification task is sleeping and is awakened by the polling task. When the notification task is awakened
+we generate a PWM signal of 1kHZ for 2 seconds and put the notification task back to sleep to save power.
+
+When the PWM signal is on, an active buzzer generates sound.
+We manually generate the PWM signal
+by setting a General Purpose Input/Output (GPIO) pin to high, wait 500 microseconds and set the GPIO pin
+to low again. While the Buzzer is active (pwm is on) any further signals from the first task are ignored.
+
+It is important to note that the asynchronous rust framework [embassy](https://embassy.dev/) for embedded
+systems allows the tasks to be asynchronous. On high level, it acts as a scheduler for our embedded device, putting
+tasks to sleep, and waking them up, when needed. With it, we do not have so-called "busy polls", but rather
+software interrupts, which make our device much more efficient in terms of energy usage.
+Even the IMU poll task wakes up every 50 milliseconds, does its job, and then goes back to sleep.
+
+## Sensor Fusion 
+
+### Choosing of a Filter
+
+IMU angular velocities cannot just be integrated over time, as those values
+are effected with errors. If you integrate those values, one will receive 
+a so called IMU-Drift, where the error biases are also integrated over time.
+
+To solve this issue, there are already several filters at hand, that could be
+used for the project:
+- Kalman Filter
+- Mahony Filter
+- Complementary Filter
+- etc.
+
+It has been a spoilt for choice. The filter, usually used for embedded device, which was the Madgwick Filter,
+was chosen. Additionally, there has been a open-source library with its implementation at hand ([ahrs-rs](https://github.com/jmagnuson/ahrs-rs)).
+
+### Madgwick Filter
+
+The Madgwick filter ([paper](https://x-io.co.uk/downloads/madgwick_internal_report.pdf)) is a sensor fusion algorithm
+by [Sebastian Madgwick](https://ahrs.readthedocs.io/en/latest/filters/madgwick.html),
+that is suited well for embedded devices due to its efficiency.
+
+It integrates the angular velocities, by integration of the quaternion derivatives over time.
+As integration of angular velocities from an IMU is prone to drift, the madgwick filter uses
+the earth's gravity field as a reference direction to compensate for that IMU
+drift
+([source here](https://ahrs.readthedocs.io/en/latest/filters/madgwick.html#orientation-as-solution-of-gradient-descent)).
+
+Therefore, the Madgwick filter has one parameter you need to adjust.
+It is called the filter gain beta, and there exist
+some recommendations on which value to choose from.
+
+When picking the right value for beta, there is a trade-off between the stability
+of the resulting orientation and its response. For example for drones (values up to 0.3), which
+have to react fast, the Madgwick Filter is optimised for high responsiveness.
+On almost static, or human motion tracking (values 0.01–0.1) the filter is optimised for stable output.
+
+A value of 0.1 is used (This is the recommended default value for a general purpose application),
+as it showed the best trade-off between responsiveness and stability for the application.
 
 # Closing
 
-TODO
-Critical Self assessment
+Doing this project was really rewarding. On the one hand, you could integrate 
+already known concepts from software engineering. On the other hand you could integrate
+knowledge from hobby projects like 3d printing.
+You could even learn something completely new, which was Rust on the embedded side and
+soldering for me.
+
+In the end I created a battery-driven, wearable device, that can track a posture
+and notify that person, if that posture should be corrected - and therefore can help
+people fostering a healthier lifestyle.
+
+Below the image of the assembled device
+
+<div align="center">
+<img src="images/prototype.png" alt="Finished prototype" width="600"/>
+</div>
+
+But of course, there can be several points, that can be improved, which I describe in the following section.
+
+## Improvements
+
+The first thing, that can be improved, is the battery management. The MCU can load the battery,
+but there is no information about the current charge of the battery. This is potentially dangerous,
+as the LiPo could be drawn empty.
+
+Also, being relatively new at soldering, the cable management could be improved a lot. Looking at it
+makes me sad. Maybe adapters could be used instead of soldering so much connections?
+
+In the below list, more improvements are added:
+- Using an MCU with an integrated IMU: For example
+  the [Seeed xiao nRF sense](https://www.seeedstudio.com/Seeed-XIAO-BLE-Sense-nRF52840-p-5253.html) comes with an
+  integrated IMU. With this the I2c connection could be made obsolete.
+- Smaller LiPo Battery: The battery is quite oversized for such a small project. A smaller battery could be used, making
+  the device
+  even smaller
+- All the MCUs support Bluetooth. Or even Bluetooth Low Energy. One could connect the device via bluetooth to a
+  smartphone.
 
 # References
+
+## Use of open source software
+
+## Bill of Materials
 
 ## Open source software used
 
