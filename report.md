@@ -9,26 +9,21 @@ Student: Yasin Gündüz
 
 # Abstract
 
-The Nerd Neck project is a 3d printed wearable device designed to help people maintain a good posture, especially those
-who
-spend long hours sitting, like office workers or students. The device is attached to a persons back.
+In today's office work people are sitting too much, which results in several health issues, like back pain
+or chronicle bad postures. One of these is called "nerd neck", where the head protrudes forward from the shoulders.
+This project is an effort to help people maintain a good posture while sitting
+or standing, to decrease health issues originated by bad posture habits.
 
-The device uses an ESP32-S3 microcontroller, a 6-DoF IMU sensor to detect the current orientation, a LiPo battery
-for portability, and an active piezo buzzer that alerts the user when their posture needs correcting. By analyzing
-IMU
-data and applying a Madgwick filter for accuracy, it detects poor posture efficiently.
-
-The device firmware is programmed in Rust, using tools like esp-hal, a hardware abstraction layer for the esp family.
-Also,
-embassy is used, an async runtime for embedded targets, making it pleasant to run asynchronous tasks. The firmware
-can
-be built and flashed directly from a computer with one simple
-command due to the given tooling.
+The nerd neck device is a 3d-printed wearable device where the device is
+attached to a persons back and tracks the back's orientation in regards the gravity's axis.
+Using an ESP32 and programmed in Rust, an inertial measurement unit together with a sensor fusion filter is 
+efficiently detecting the person's posture. When a bad posture is detected, a buzzer will notify the person to correct
+the posture.
 
 # Project and Code
 
 The project is open-source with an [MIT](https://en.wikipedia.org/wiki/MIT_License) license. The code and the stl-files
-for the 3d print can be fetched at https://github.com/yguenduez/nerd-neck-esp32.
+for the 3d print can be fetched at https://github.com/yguenduez/nerd-neck.
 
 # Motivation and Outline
 
@@ -212,7 +207,7 @@ The housing has components to fit in:
 - the piezo buzzer with its dimensions 6mm radius and about 10mm of height
 - spare volume space for the wiring between the components
 
-The parts for the final print can be fetched [here](https://github.com/yguenduez/nerd-neck-esp32/tree/main/3dprint).
+The parts for the final print can be fetched [here](https://github.com/yguenduez/nerd-neck/tree/main/3dprint).
 The slicing software has been [Snapmaker Luban](https://www.snapmaker.com/en-US/snapmaker-luban) from the
 same company, that is building the snapmaker 3d printer. For printing we use the F350 Snapmaker Luban 3d printer.
 
@@ -283,7 +278,7 @@ Whereas in top part, the IMU, MCU and
 the buzzer have their place.
 
 Issues occurred when trying to connect the bottom and the top part of the casing.
-In the first designs (You can look at the [projects readme](https://github.com/yguenduez/nerd-neck-esp32)),
+In the first designs (You can look at the [projects readme](https://github.com/yguenduez/nerd-neck)),
 it was tried to snap both parts together. Those snappings, however, always broke.
 
 The designs after tried a slide approach. You could slide the bottom part into the top part.
