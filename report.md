@@ -42,13 +42,104 @@ attachable to a person's back.
 The project is already restricted to be as small as possible and battery powered. Being battery powered,
 it also means it is not allowed to draw much current to remain as long as possible active.
 
-The project is open-source with an [MIT](https://en.wikipedia.org/wiki/MIT_License) license. The code and the stl-files
-for the 3d print can be fetched at https://github.com/yguenduez/nerd-neck.
 Moreover, it must track the posture of a person to be able to react to a bad posture.
 And finally, the person must also be notified when being in a bad posture.
 
 In the following section, I will describe how I solved above goals.
 
+# Methodology
+
+## Outline
+
+The 3d printed device is polling the current orientation from the inertial measurement unit (IMU) every 50 milliseconds.
+As the IMU angular velocities are error-prone in general, a sensor fusion algorithm is used,
+i.e. the Madgwick filter, to integrate the angular velocity over time and have an error correction to it.
+
+If the orientation surpasses a configurable threshold, an active buzzer is activated, that is powered
+directly with a 1kHz Pulse Modulo Width (PWM) signal, generating the notification sound.
+
+## Hardware
+
+### Components and Wiring
+
+To be as small as possible, the esp32s3 from seeed xiao, a microcontroller unit (MCU), is used.
+It comes with a small form factor and can be directly
+soldered to a Lithium-Polymer (LiPo) battery for which it has an integrated circuit to load the battery.
+This already solves the battery goal of this project.
+
+To measure the person's bad posture, it is enough to measure the orientation of a person's back. Therefore,
+we use an inertial measurement unit (IMU), that gives us the orientation information with its gyroscope values.
+The IMU is connected via an inter-integrated-circuit (I2C), a common serial communication protocol,
+to communicate with the MCU.
+
+When reaching a certain orientation (i.e. a bad posture), an active buzzer is attached to one of the
+general purpose output/input pin of the MCU.
+
+Below, you can see the wiring of the breadboard version of the device (Note: The images of the components
+are incorrect—the wiring is correct). The I2C is connected to the GPIO pins
+5 and 6. To make the I2C work, it is necessary to have pull-up resistors,
+that pull the signal to the MCU's high logical voltrage (3.3 volts). The IMU itself can only pull the signal down.
+This is what I had to learn during several hours of debugging. Common I2C resistor values of 4.7k Ohms are used.
+
+The resistor for the buzzer is to protect the MCU's GPIO from overdrawing current of the buzzer. There a 100 Ohms
+resistor is used.
+
+<div align="center">
+<img src="images/nerd-neck-fritzing.png" alt="Fritzing Image" width="500"/>
+</div>
+
+For a complete list of all the components, have a look at the reference section.
+
+### 3d Printed Casing
+
+As the device should be wearable, all the components from above need to be housed.
+Therefore, a 3d printed casing was designed. It consists of a bottom shell and
+top shell, that can be connected to one another, to close the housing.
+
+As the LiPo battery is quite flat, the battery is housed in the bottom part, whereas the
+top shell is housing the MCU, the buzzer as well as the IMU.
+
+There were a lot of problems with the initial designs (you can see them at
+the [nerd-neck project] (https://github.com/yguenduez/nerd-neck)).
+First it was tried create a design, that allows the bottom shell to be snapped in the top shell of the housing to close
+it.
+
+However, the small snapping elements always broke, because they had to be
+In a second iteration it was tried to make the housing slideable. Meaning, we can slide the bottom (battery part) into
+the top shell. With this design, the housing was just too big, compared to the inner volume the components are housed in.
+
+In the end, after already five design iterations, a small tip from a colleague helped. He mentioned that I should 
+use a so-called "pressfit" version. This means the two parts do not fit perfectly into one another, so you have to press
+them into each other. The friction alone keeps both parts together. As an immediate consequence, the housing got much
+simpler to design—and also to use.
+
+You can see both shells in the pictures below, without and with the components in it.
+
+<div style="display: flex; justify-content: space-evenly; width: 100%;">
+  <img src="images/case_empty_open.jpeg" alt="Fritzing Image" width="400"/>
+  <img src="images/prototype_open.jpeg" alt="Fritzing Image" width="400"/>
+</div>
+
+# Software
+
+TODO: Rust
+
+## Architecture
+
+TODO: Tasks
+
+## Madgwick-Filter
+
+How it works
+
+# Closing
+
+TODO
+Critical Self assessment
+
+# References
+
+## Open source software used
 
 # Motivation and Outline
 
@@ -74,29 +165,6 @@ family created a lot of tooling
 around Rust
 for their chips. With one line of a command, we can build and flash our firmware directly onto the esp32 from any host
 system (in this case MacOS or Windows 11) via usb-c.
-
-## Use of open-source libraries and frameworks
-
-The [esp_hal](https://github.com/esp-rs/esp-hal), an esp hardware abstraction layer for Rust. With it you can
-access the ESP GPIO pins, or create other interfaces like i2c in an easy and convenient way.
-
-Also, [embassy](https://embassy.dev/) is used, an asynchronous runtime for embedded systems, that makes it easy
-to create asynchronous tasks and to communicate between those.
-
-For the inertial measurement unit (IMU), we use a library called [bmi160-rs](https://github.com/eldruin/bmi160-rs) and
-created a small adapter around the library's API to our needs.
-It correctly addresses all registers of the IMU. Futhermore, it accepts
-an I2c interface and even handles the I2c communication for us. We only have to create an I2c
-interface with the esp-hal (see above), by selecting two General Purpose Input/Output (GPIO) pins
-for the data and the clock signal.
-
-As gyroscope data tends to drift over time, when you integrate the angular velocities a sensor fusion
-filter is used. We use the [Madgwick](https://ahrs.readthedocs.io/en/latest/filters/madgwick.html) filter,
-which is designed to work well on an embedded system. The filter is especially designed for IMUs like the one
-we use here. As a library, we use [ahrs-rs](https://github.com/jmagnuson/ahrs-rs), which is a rust implementation
-for the Madgwick filter. An adapter around the library API is created to fit our needs.
-
-Furthermore, [nalgebra](https://github.com/dimforge/nalgebra) is used to work with quaternions, calculating angles.
 
 ## Architecture
 
@@ -171,26 +239,6 @@ On almost static, or human motion tracking the filter is optimised for stable ou
 
 # Hardware
 
-## Bill of Materials
-
-The device consists of:
-
-- a small microcontroller unit (MCU), an esp32s3 from xiao seeed, which has a small form
-  factor. [Link](https://www.bastelgarage.ch/seeed-studio-xiao-esp32-s3-1-2809?search=esp32s3%20xiao%20seeed).
-- an inertial measurement unit (IMU), that can measure acceleration and the angular velocity with a
-  gyroscope. [Link](https://www.bastelgarage.ch/gravity-i2c-bmi160-6-axis-motion-sensor-with-gyroscope?search=bmi160)
-- a small lithium polymer (LiPo) battery, to power the wearable
-  device. [Link](https://www.bastelgarage.ch/solar-lipo-1-105/lipo-battery-1500mah-jst-2-0-lithium-ion-polymer).
-- a small beeper/buzzer to notify the person about a bad
-  posture. [Link](https://www.bastelgarage.ch/piezo-buzzer-summer-active?search=active%20buzzer)
-- 2x 4.7k Ohm Resistors for the i2c connection.
-- 1x 100 Ohm Resistor for the GPIO pin 7 for overdrawing protection
-- Wires to connect the components by soldering
-- JST-PH crimp plugs and sockets (To not directly solder the battery to the
-  MCU), [link](https://www.bastelgarage.ch/jst-ph-crimp-stecker-und-buchsen-2mm-set-40-stuck)
-
-which are all contained in a 3d printed housing.
-
 ## Wiring
 
 This fritzing image below shows the wiring. The parts in the image are different from the ones, that are used.
@@ -245,23 +293,6 @@ Below you can see the finished 3d printed casing in its final version.
 # Building and Flashing
 
 In order to build and flash the software you need to have the Rust toolchain installed.
-
-## Prerequisites
-
-Install all the depenendencies:
-
-- Install [Rust](https://www.rust-lang.org/tools/install)
-- Install esp tooling
-    - `cargo install espup espflash`
-    - `espup install`
-
-## Building/Flashing
-
-Then `cd` into the `nerd-neck` directory and
-`source ~/export-esp.h` (generated from `espup install`).
-
-To build and flash it the firmware to the device,
-just run `cargo run --release`.
 
 # Closing
 
@@ -358,3 +389,53 @@ There are several ideas that could be followed:
   PCB.
 - There is no information about the current battery charge. One could implement a small battery charge reader with an
   analog input pin
+
+# References
+
+## Project and Code
+
+The project is open-source with an [MIT](https://en.wikipedia.org/wiki/MIT_License) license. The code and the stl-files
+for the 3d print can be fetched at https://github.com/yguenduez/nerd-neck.
+
+## Bill of Materials
+
+The device consists of:
+
+- a small microcontroller unit (MCU), an esp32s3 from xiao seeed, which has a small form
+  factor. [Link](https://www.bastelgarage.ch/seeed-studio-xiao-esp32-s3-1-2809?search=esp32s3%20xiao%20seeed).
+- an inertial measurement unit (IMU), that can measure acceleration and the angular velocity with a
+  gyroscope. [Link](https://www.bastelgarage.ch/gravity-i2c-bmi160-6-axis-motion-sensor-with-gyroscope?search=bmi160)
+- a small lithium polymer (LiPo) battery, to power the wearable
+  device. [Link](https://www.bastelgarage.ch/solar-lipo-1-105/lipo-battery-1500mah-jst-2-0-lithium-ion-polymer).
+- a small beeper/buzzer to notify the person about a bad
+  posture. [Link](https://www.bastelgarage.ch/piezo-buzzer-summer-active?search=active%20buzzer)
+- 2x 4.7k Ohm Resistors for the i2c connection.
+- 1x 100 Ohm Resistor for the GPIO pin 7 for overdrawing protection
+- Wires to connect the components by soldering
+- JST-PH crimp plugs and sockets (To not directly solder the battery to the
+  MCU), [link](https://www.bastelgarage.ch/jst-ph-crimp-stecker-und-buchsen-2mm-set-40-stuck)
+
+which are all contained in a 3d printed housing.
+
+## Use of open-source libraries and frameworks
+
+The [esp_hal](https://github.com/esp-rs/esp-hal), an esp hardware abstraction layer for Rust. With it you can
+access the ESP GPIO pins, or create other interfaces like i2c in an easy and convenient way.
+
+Also, [embassy](https://embassy.dev/) is used, an asynchronous runtime for embedded systems, that makes it easy
+to create asynchronous tasks and to communicate between those.
+
+For the inertial measurement unit (IMU), we use a library called [bmi160-rs](https://github.com/eldruin/bmi160-rs) and
+created a small adapter around the library's API to our needs.
+It correctly addresses all registers of the IMU. Futhermore, it accepts
+an I2c interface and even handles the I2c communication for us. We only have to create an I2c
+interface with the esp-hal (see above), by selecting two General Purpose Input/Output (GPIO) pins
+for the data and the clock signal.
+
+As gyroscope data tends to drift over time, when you integrate the angular velocities a sensor fusion
+filter is used. We use the [Madgwick](https://ahrs.readthedocs.io/en/latest/filters/madgwick.html) filter,
+which is designed to work well on an embedded system. The filter is especially designed for IMUs like the one
+we use here. As a library, we use [ahrs-rs](https://github.com/jmagnuson/ahrs-rs), which is a rust implementation
+for the Madgwick filter. An adapter around the library API is created to fit our needs.
+
+Furthermore, [nalgebra](https://github.com/dimforge/nalgebra) is used to work with quaternions, calculating angles.
