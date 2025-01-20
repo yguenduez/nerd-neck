@@ -25,7 +25,6 @@ The whole device is a wearable, so it needs a battery (LiPo) and a 3d printed ca
 - [x] Design 3d model for the casing to print
 - [x] Print the casing
 - [x] Assemble the parts
-- [ ] Test different parameters (Hz ratio, Beta value etc.), and document outcome
 - [x] Write Report with Markdown
 - [x] Slides with UniBas flavour
 
