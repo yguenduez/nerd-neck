@@ -6,13 +6,13 @@ This is the report for the nerd neck device. An embedded project for the lecture
 University Basel for
 the semester 2024.
 
-Date: 20.01.2025
+Date: January 21st 2025
 
 Student: Yasin Gündüz
 
 # Abstract
 
-In today's office work people are sitting too much, which results in several health issues, like back pain
+In today's office work people are sitting much, which results in several health issues, like back pain
 or chronicle bad postures. One of these is called "nerd neck", where the head protrudes forward from the shoulders.
 This project is an effort to help people maintain a good posture while sitting
 or standing, to decrease health issues originated by bad posture habits.
@@ -25,7 +25,7 @@ the posture.
 
 # Introduction
 
-Office workers, or programmers at work, tend to have a bad posture in front of their laptops, or working at
+Office workers, or programmers, tend to have a bad posture in front of their laptops, or working at
 desks. When exposed too long to a bad posture, this can result in several health issues. Back pain is just one example
 of this.
 There are already countermeasures to fight bad postures. For example ergonomic trainings for office
@@ -43,11 +43,16 @@ The project is already restricted to be as small as possible and battery powered
 it also means it is not allowed to draw much current to remain active for as long as possible.
 
 Moreover, it must track the posture of a person to be able to react to a bad posture.
-And finally, the person must also be notified when being in a bad posture.
+The person must also be notified when being in a bad posture.
 
 In the following sections, I will describe how I solved above goals.
 
 # Methodology
+
+The methodology is separated in a hardware section and a software section. In the hardware section,
+we will look at the components, the wiring between them and the 3d printed casing, that houses them.
+Afterwards, we will look at how software is designed and how it supplements the project goals to get
+the orientation of the device.
 
 ## Hardware
 
@@ -58,7 +63,7 @@ It comes with a small form factor and can be directly
 soldered to a Lithium-Polymer (LiPo) battery for which it has an integrated circuit to load the battery.
 This already solves the battery-driven goal of this project.
 
-To measure the person's bad posture, it is enough to measure the orientation of a person's back. Therefore,
+To detect the person's bad posture the orientation of a person's back is measured. Therefore,
 we use an inertial measurement unit (IMU), that gives us the orientation information with its gyroscope values.
 The IMU is connected via an inter-integrated-circuit (I2C), a common serial communication protocol,
 to communicate with the MCU.
@@ -66,10 +71,10 @@ to communicate with the MCU.
 When reaching a certain orientation (i.e. a bad posture), an active buzzer is attached to one of the
 general purpose output/input (GPIO) pin of the MCU.
 
-Below, you can see the wiring of the breadboard version of the device (Note: The images of the components
-are incorrect—the wiring is correct). The I2C is connected to the GPIO pins
+Below, you can see the wiring of the breadboard version of the device. The I2C is connected to the GPIO pins
 5 and 6. To make the I2C work, it is necessary to have pull-up resistors,
-that pull the signal to the MCU's high logical voltrage (3.3 volts). The IMU itself can only pull the signal down.
+that pull the signal to the MCU's high logical voltage (3.3 volts). The IMU itself can only pull the signal down
+to the logical zero volts.
 This is what I had to learn during several hours of debugging. Common I2C resistor values of 4.7k Ohms are used.
 
 The resistor for the buzzer is to protect the MCU's GPIO from overdrawing current of the buzzer. There a 100 Ohms
@@ -121,16 +126,16 @@ for their MCUs. With one line of a command, you can build and flash the firmware
 system (in this case MacOS or Windows 11) via usb-c. This project makes also use of the
 [esp_hal](https://github.com/esp-rs/esp-hal). A hardware abstraction layer for the esp32 family.
 
-The only downside to Rust in the embedded world has been that it is quite new. Tutorials and HowTos
+The only downside to Rust in the embedded world is that it is quite new. Tutorials and HowTos
 were already outdated when reading them. Generally, you have to stick to the latest documentation,
 that comes with a library you use.
-Even trying to use ChatGPT for programming was useless, as the recommended APIs were already outdated. And most
+Trying to use ChatGPT for programming was useless, as the recommended APIs were already outdated. And most
 of the APIs had breaking changes in them.
 
 ## Architecture
 
 In software, the tracking of a person's pose and the notification of a bad posture are separated. Therefore,
-there are two asynchronous running tasks, namely the IMU polling task and the notification task, which you can see
+there are two concurrent running tasks, namely the IMU polling task and the notification task, which you can see
 in the below flowchart diagram.
 
 ![flowchart](images/flowchart.png)
@@ -146,8 +151,8 @@ gravity) surpasses a threshold.
 Namely, if the angle between the device and the gravity's direction
 is greater than 22.5 degrees, we send a signal to the notification task, to wake it up.
 
-The notification task is sleeping and is awakened by the polling task. When the notification task is awakened,
-we generate a PWM signal of 1kHZ for 2 seconds and put the notification task back to sleep to save power.
+When the notification task is awakened, we generate a PWM signal of 1kHZ for 2 seconds and put the notification task
+back to sleep to save power afterwards.
 
 When the PWM signal is on, an active buzzer generates sound.
 We manually generate the PWM signal
@@ -155,18 +160,15 @@ by setting a GPIO pin to high, wait 500 microseconds and set the GPIO pin
 to low again. While the Buzzer is active, any further signals from the first task are ignored.
 
 It is important to note that the asynchronous rust framework [embassy](https://embassy.dev/) for embedded
-systems allows the tasks to be asynchronous. On high level, it acts as a scheduler for our embedded device, putting
-tasks to sleep, and waking them up, when needed. With it, we do not have so-called "busy polls", but rather
-interrupts, which make our device much more efficient in terms of energy usage.
-Even the IMU poll task wakes up every 50 milliseconds, does its job, and then goes back to sleep.
+systems allows the tasks to be concurrent. On high level, it acts as a scheduler for our embedded device, putting
+tasks to sleep, and waking them up, when needed.
 
 ## Sensor Fusion
 
 ### Choosing a Filter
 
 IMU angular velocities cannot just be integrated over time, as those values
-are error-prone. If you integrate those values, one will receive
-a so-called IMU-Drift, where the errors are also integrated over time.
+are error-prone. One will receive a so-called IMU-Drift, where the errors are also integrated over time.
 
 To solve this issue, there are already several filters at hand, that could be
 used for the project:
@@ -188,13 +190,12 @@ that is suited well for embedded devices due to its efficiency.
 
 It integrates the angular velocities, by integration of the quaternion derivatives over time.
 As integration of angular velocities from an IMU is prone to drift, the madgwick filter uses
-the earth's gravity field as a reference direction to compensate for that IMU
+the earth's gravity field as a reference direction to compensate for the IMU
 drift
 ([source here](https://ahrs.readthedocs.io/en/latest/filters/madgwick.html#orientation-as-solution-of-gradient-descent)).
 
 The Madgwick filter has one parameter you need to adjust.
-It is called the filter gain beta, and there exists
-the following rule of thumb (taken from [here](https://stackoverflow.com/a/47772311/7585591)).
+It is called the filter gain beta.
 
 When picking the right value for beta, there is a trade-off between the stability
 of the resulting orientation and its response. For example, for drones which
@@ -230,14 +231,14 @@ The first thing, that can be improved, is the battery management. The MCU can lo
 but there is no information about the current charge of the battery. This is potentially dangerous,
 as the LiPo could be drawn empty.
 
-Also, being relatively new at soldering, the cable management could be improved a lot. Looking at it
-makes me sad. Maybe adapter solutions could be used instead of soldering connections.
+Also, being new at soldering, the cable management could be improved a lot. Maybe adapter solutions could be used
+instead of soldering connections.
 
-Also, it would have been interesting to fine tune to the beta value of the madgwick filter, which I did not do.
+Furthermore, it would have been interesting to fine tune to the beta value of the Madgwick filter, which I did not do.
 
 In the below list, more improvements are added:
 
-- Using an MCU with an integrated IMU: For example
+- Using an MCU with an integrated IMU: For example,
   the [Seeed xiao nRF sense](https://www.seeedstudio.com/Seeed-XIAO-BLE-Sense-nRF52840-p-5253.html) comes with an
   integrated IMU. With this, the I2C connection could be made obsolete.
 - Smaller LiPo Battery, making the device smaller: The battery is quite oversized for such a small project.
@@ -253,9 +254,10 @@ there.
 ## Content
 
 - [Madgwick Paper](https://courses.cs.washington.edu/courses/cse466/14au/labs/l4/madgwick_internal_report.pdf)
-- [Sharing Data amognst asynchronous tasks in embassy](https://dev.to/theembeddedrustacean/sharing-data-among-tasks-in-rust-embassy-synchronization-primitives-59hk)
+- [Sharing Data amongst asynchronous tasks in embassy](https://dev.to/theembeddedrustacean/sharing-data-among-tasks-in-rust-embassy-synchronization-primitives-59hk)
 - [Discussion on Madgwick Beta Value](https://stackoverflow.com/a/47772311/7585591)
-- [Documentation about the esp32s3 from seeed xiao](https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/)
+- [Documentation for the esp32s3 from seeed xiao](https://wiki.seeedstudio.com/xiao_esp32s3_getting_started/)
+- [Rust library documentations: docs.rs](https://docs.rs/)
 
 ## Use of open-source libraries and frameworks
 
@@ -263,8 +265,8 @@ This project makes use of several open source libraries:
 
 - The [esp_hal](https://github.com/esp-rs/esp-hal), an esp hardware abstraction layer for Rust.
 - [Embassy](https://embassy.dev/) is used. An asynchronous runtime for embedded systems in Rust.
-- For the inertial measurement unit (IMU), a library called [bmi160-rs](https://github.com/eldruin/bmi160-rs) is used
-- For the Madgwick filter, I used [ahrs-rs](https://github.com/jmagnuson/ahrs-rs)
+- For the inertial measurement unit (IMU), the [bmi160-rs](https://github.com/eldruin/bmi160-rs) is used.
+- For the Madgwick filter, I used [ahrs-rs](https://github.com/jmagnuson/ahrs-rs).
 - [nalgebra](https://github.com/dimforge/nalgebra) is used to work with quaternions, calculating angles.
 
 ## Bill of Materials
@@ -282,3 +284,9 @@ This project makes use of several open source libraries:
 - Wires to connect the components by soldering
 - JST-PH crimp plugs and sockets (To not directly solder the battery to the
   MCU), [link](https://www.bastelgarage.ch/jst-ph-crimp-stecker-und-buchsen-2mm-set-40-stuck)
+
+# Disclaimer
+
+OpenAI GPT-4o was trying to be used at the beginning of the project. But no generated code was used, as
+the suggested API calls either did not exist (were hallucinated), or were just completely outdated.
+In the end, library documentations at [docs.rs](https://docs.rs/) were the only valuable source of truth.
