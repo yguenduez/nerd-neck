@@ -108,7 +108,7 @@ In a second iteration, it was tried to make the housing slideable. Meaning, we c
 the top shell. With this design, the housing was just too big, compared to the inner volume the components are housed
 in.
 
-In the end, after already five design iterations, a small tip from a colleague helped. He mentioned that I should
+In the end, after already four design iterations, a small tip from a colleague helped. He mentioned that I should
 use a so-called "pressfit" version. This means the two parts do not fit perfectly into one another, so you have to press
 them into each other. The friction alone keeps both parts together. As an immediate consequence, the housing got much
 simpler to design—and also to use.
