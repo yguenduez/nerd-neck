@@ -20,7 +20,7 @@ static BUZZER_SIGNAL: Signal<CriticalSectionRawMutex, NotifyPerson> = Signal::ne
 
 struct NotifyPerson;
 
-const POLL_INTERVAL: Duration = Duration::from_millis(20);
+const POLL_INTERVAL: Duration = Duration::from_millis(50);
 
 #[task]
 async fn imu_poll(mut imu: ImuAdapter<'static>, mut madgwick: MadgwickAdapter) {
