@@ -3,7 +3,7 @@ runner = "espflash flash --monitor"
 
 
 [env]
-ESP_LOG="info"
+ESP_LOG="warn"
 
 [build]
 rustflags = [

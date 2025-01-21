@@ -29,7 +29,7 @@ async fn imu_poll(mut imu: ImuAdapter<'static>, mut madgwick: MadgwickAdapter) {
         let update_result = madgwick.update(gyro, accel);
         if let Ok(quaternion) = update_result {
             let angle = quaternion_to_z_axis_angle((*quaternion).into());
-            info!("Angle to z-axis: {:.2}", angle);
+            info!("Angle to IMU's z-axis: {:.2}", angle);
 
             if back_is_bend(angle) {
                 BUZZER_SIGNAL.signal(NotifyPerson);
@@ -62,20 +62,18 @@ async fn main(spawner: Spawner) {
         .split::<esp_hal::timer::systimer::Target>();
     esp_hal_embassy::init(timer0.alarm0);
 
-    // Getting the i2c up
     let i2c = I2c::new(peripherals.I2C0, Config::default())
         .with_scl(peripherals.GPIO6)
         .with_sda(peripherals.GPIO5)
         .into_async();
 
-    //Setting up the IMU
     let imu = ImuAdapter::new_bmi160(i2c);
-    let madgwick = MadgwickAdapter::new(POLL_INTERVAL.as_millis());
+    let madgwick_filter = MadgwickAdapter::new(POLL_INTERVAL.as_millis());
 
     let gpio = peripherals.GPIO7;
     let beeper_pin = Output::new(gpio, Level::Low);
     let buzzer = BuzzerAdapter::new(beeper_pin);
 
-    spawner.spawn(imu_poll(imu, madgwick)).unwrap();
+    spawner.spawn(imu_poll(imu, madgwick_filter)).unwrap();
     spawner.spawn(notification(buzzer)).unwrap();
 }
