@@ -29,8 +29,6 @@ async fn imu_poll(mut imu: ImuAdapter<'static>, mut madgwick: MadgwickAdapter) {
         let update_result = madgwick.update(gyro, accel);
         if let Ok(quaternion) = update_result {
             let angle = quaternion_to_z_axis_angle((*quaternion).into());
-            info!("Angle to IMU's z-axis: {:.2}", angle);
-
             if back_is_bend(angle) {
                 BUZZER_SIGNAL.signal(NotifyPerson);
             }
