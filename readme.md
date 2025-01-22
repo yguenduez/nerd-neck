@@ -12,12 +12,12 @@ This small device will detect bad posture, if the person wearing this device has
 
 ## Outline
 
-We read IMU data in a cycle. Every x milliseconds we receive IMU data.
+We read IMU data in a cycle. Every 50 milliseconds we receive IMU data.
 As the IMU values drift, we need a filter(s): Those correct the drift integrated over time with sensor fusion
 algorithms.
 
 If the orientation of the device passes a certain threshold,
-the device will start beeping for y, notifying the person to rectify its position.
+the device will start beeping for 2 seconds, notifying the person to rectify its position.
 It will remain beeping, until the person corrected its position.
 
 The whole device is a wearable, so it needs a battery (LiPo) and a 3d printed casing.
