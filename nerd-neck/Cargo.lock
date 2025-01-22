@@ -759,7 +759,6 @@ dependencies = [
  "esp-hal",
  "esp-hal-embassy",
  "esp-println",
- "log",
  "utility",
 ]
 

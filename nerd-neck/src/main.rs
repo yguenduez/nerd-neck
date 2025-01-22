@@ -7,7 +7,6 @@ use esp_backtrace as _;
 use esp_hal::gpio::{Level, Output};
 use esp_hal::i2c::master::{Config, I2c};
 use esp_hal::prelude::*;
-use log::info;
 use utility::angle::{back_is_bend, quaternion_to_z_axis_angle};
 use utility::madgwick_adapter::MadgwickAdapter;
 
