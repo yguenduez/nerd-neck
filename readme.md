@@ -189,7 +189,7 @@ Install all the depenendencies:
 Then go into the `nerd-neck` directory and
 `source ~/export-esp.h` (generated from `espup install`).
 
-To build and flash it the firmware to the device,
+To build and flash the firmware to the device,
 just run `cargo run --release`.
 
 # Casing
